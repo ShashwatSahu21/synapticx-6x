@@ -191,6 +191,50 @@ def _try_open_port(port: str, baud: int) -> Optional[str]:
     except Exception as e:
         return str(e)
 
+def _validate_connections():
+    """
+    Cross-check every 'connected' node against the live COM port list.
+    If the port is no longer present OR can no longer be opened, auto-disconnect.
+    Called on every /ports poll AND by the background watchdog.
+    """
+    available = {p["port"] for p in _list_com_ports()}
+    for node, state in connection_state.items():
+        if state["status"] != "connected":
+            continue
+        port = state["port"]
+        # 1) Port vanished from the system entirely
+        if port not in available:
+            if node == "emg":
+                _stop_emg_reader()
+            connection_state[node].update({
+                "status": "disconnected", "port": None, "error": "Device unplugged"
+            })
+            _add_log("WARN", f"{state['device']} lost — {port} no longer available")
+            continue
+        # 2) Port exists but can't be opened (another process grabbed it or device changed)
+        err = _try_open_port(port, state["baud"])
+        if err:
+            if node == "emg":
+                _stop_emg_reader()
+            connection_state[node].update({
+                "status": "error", "port": None, "error": err
+            })
+            _add_log("ERROR", f"{state['device']} health-check failed on {port}: {err}")
+
+
+def _watchdog():
+    """Background thread: validates connections every 2 s."""
+    while True:
+        time.sleep(2)
+        try:
+            _validate_connections()
+        except Exception:
+            pass
+
+# Start watchdog at import time
+_watchdog_thread = threading.Thread(target=_watchdog, daemon=True)
+_watchdog_thread.start()
+
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
 @app.get("/neural-data")
@@ -213,6 +257,8 @@ def get_neural_data():
 
 @app.get("/ports")
 def get_ports():
+    # Always validate live state before returning — catches unplugs instantly
+    _validate_connections()
     return {
         "ports": _list_com_ports(),
         "connections": connection_state,
