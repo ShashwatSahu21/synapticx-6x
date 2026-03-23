@@ -6,13 +6,14 @@ No simulated data anywhere.
 
 import threading
 import time
+import math
 from collections import deque
 from datetime import datetime
 from typing import Dict, List, Optional
+from pydantic import BaseModel
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 try:
     import serial
@@ -29,6 +30,61 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ─── DSP Filters ─────────────────────────────────────────────────────────────
+
+class Biquad:
+    def __init__(self, b0, b1, b2, a1, a2):
+        self.b0, self.b1, self.b2 = b0, b1, b2
+        self.a1, self.a2 = a1, a2
+        self.z1 = self.z2 = 0.0
+
+    def process(self, x: float) -> float:
+        # Direct Form II Transposed
+        y = x * self.b0 + self.z1
+        self.z1 = x * self.b1 - y * self.a1 + self.z2
+        self.z2 = x * self.b2 - y * self.a2
+        return y
+
+def _design_intermediates(fs, fc, Q):
+    omega = 2.0 * math.pi * fc / fs
+    omegaS = math.sin(omega)
+    omegaC = math.cos(omega)
+    alpha = omegaS / (2.0 * Q)
+    return omegaC, alpha
+
+def design_hpf(fs, fc, Q=0.707):
+    omc, alpha = _design_intermediates(fs, fc, Q)
+    a0 = 1.0 + alpha
+    return Biquad(
+        b0=((1.0 + omc) / 2.0) / a0,
+        b1=(-(1.0 + omc)) / a0,
+        b2=((1.0 + omc) / 2.0) / a0,
+        a1=(-2.0 * omc) / a0,
+        a2=(1.0 - alpha) / a0
+    )
+
+def design_lpf(fs, fc, Q=0.707):
+    omc, alpha = _design_intermediates(fs, fc, Q)
+    a0 = 1.0 + alpha
+    return Biquad(
+        b0=((1.0 - omc) / 2.0) / a0,
+        b1=(1.0 - omc) / a0,
+        b2=((1.0 - omc) / 2.0) / a0,
+        a1=(-2.0 * omc) / a0,
+        a2=(1.0 - alpha) / a0
+    )
+
+def design_notch(fs, f0, Q=35.0):
+    omc, alpha = _design_intermediates(fs, f0, Q)
+    a0 = 1.0 + alpha
+    return Biquad(
+        b0=1.0 / a0,
+        b1=(-2.0 * omc) / a0,
+        b2=1.0 / a0,
+        a1=(-2.0 * omc) / a0,
+        a2=(1.0 - alpha) / a0
+    )
 
 # ─── Servo state (manual control) ────────────────────────────────────────────
 
@@ -59,6 +115,8 @@ _emg_thread: Optional[threading.Thread] = None
 _emg_stop:   threading.Event = threading.Event()
 _emg_lock:   threading.Lock  = threading.Lock()
 _sample_idx: int = 0
+FS = 10000  # Sampling frequency based on Spike_Recorder.ino 
+_hpf, _notch, _lpf = None, None, None
 
 
 def _emg_reader(port: str, baud: int, stop_event: threading.Event):
@@ -83,34 +141,74 @@ def _emg_reader(port: str, baud: int, stop_event: threading.Event):
         _add_log("ERROR", f"EMG serial open failed: {e}")
         return
 
+    # Clear previous debug log
+    with open("bioamp_data.log", "w") as f:
+        f.write("=== BIOAMP DATA STREAM STARTED ===\n")
+
+    decoder_state = 0
+    decoder_msb = 0
+    ascii_buf = ""
+    
     while not stop_event.is_set():
         try:
-            raw_line = ser.readline()
-            if not raw_line:
-                continue                        # timeout — no data yet
-            line = raw_line.decode("utf-8", errors="ignore").strip()
-            if not line:
+            # Dual-mode parsing: try to readline, but if it gets stuck or gets binary, fallback.
+            # We'll just read bytes and parse the Spike Recorder binary format directly.
+            # If SpikeRecorder sends ASCII, we'll build the lines.
+            raw_data = ser.read(1)
+            if not raw_data:
                 continue
 
-            # ── Parse the sample ─────────────────────────────────────────────
-            # The BioAmp EXG Pill sketch may send:
-            #   • A single integer ADC value — most common
-            #   • A float already scaled in mV
-            #   • CSV "timestamp,value" — take the last column
-            # Adjust the parsing below to match your sketch.
-            try:
-                parts = line.split(",")
-                raw = float(parts[-1])
-            except ValueError:
-                continue                        # skip unparseable lines
+            b = raw_data[0]
+            
+            # Binary decode logic (Spike Recorder format):
+            if b & 0x80:
+                decoder_msb = b & 0x7F
+                decoder_state = 1
+                continue
+            elif decoder_state == 1:
+                raw_val = ((decoder_msb << 7) | (b & 0x7F)) & 0x3FF
+                raw_float = float(raw_val)
+                decoder_state = 0
+            else:
+                # Accumulate ASCII
+                if chr(b) == '\n':
+                    try:
+                        raw_float = float(ascii_buf.strip())
+                    except:
+                        ascii_buf = ""
+                        continue
+                    ascii_buf = ""
+                else:
+                    if len(ascii_buf) < 20: 
+                        ascii_buf += chr(b)
+                    continue
 
-            # Optional: convert raw ADC → centred voltage
-            # If your sketch already outputs mV, comment out this line:
-            voltage = (raw / 1023.0) * 5.0 - 2.5   # 10-bit, 5 V supply
-
+            # --- PROCESS SAMPLE ---
             with _emg_lock:
-                EMG_BUFFER.append({"t": _sample_idx, "v": round(voltage, 4)})
+                # 1. Center the raw ADC value around 0
+                x = raw_float - 512.0
+
+                # 2. Apply DSP Filters if initialized
+                y = x
+                if _hpf and _notch and _lpf:
+                    y = _hpf.process(y)
+                    y = _notch.process(y)
+                    y = _lpf.process(y)
+
+                # 3. Bring back to 0-1023 range and clamp
+                out10 = round(y + 512.0)
+                out10 = max(0, min(1023, out10))
+
+                # Also calculate pseudo-voltage for legacy graphs in mV if needed
+                voltage = (out10 / 1023.0) * 5.0 - 2.5
+
+                EMG_BUFFER.append({"t": _sample_idx, "v": round(voltage, 4), "raw": out10})
                 _sample_idx += 1
+
+                # 4. LOG RAW & FILTERED DATA TO FILE LIVE
+                if _sample_idx % 10 == 0:  # Log every 10th sample to save disk IO
+                    with open("bioamp_data.log", "a") as f:
+                        f.write(f"Sample: {_sample_idx} | Raw: {raw_float:>8.2f} | Filtered: {out10:>5} | Temp-Voltage: {round(voltage, 4)}mV\n")
 
             connection_state["emg"]["last_seen"] = datetime.now().isoformat()
 
@@ -135,11 +233,17 @@ def _emg_reader(port: str, baud: int, stop_event: threading.Event):
 
 def _start_emg_reader(port: str, baud: int):
     global _emg_thread, _emg_stop, _sample_idx
-    _stop_emg_reader()                      # stop any existing thread
+    global _hpf, _notch, _lpf
+    _stop_emg_reader()
     _emg_stop = threading.Event()
     _sample_idx = 0
     with _emg_lock:
         EMG_BUFFER.clear()
+        # Initialize filters
+        _hpf = design_hpf(FS, 70.0)
+        _notch = design_notch(FS, 50.0) # 50Hz mains hum (use 60.0 for US)
+        _lpf = design_lpf(FS, 2500.0)
+
     _emg_thread = threading.Thread(
         target=_emg_reader, args=(port, baud, _emg_stop), daemon=True
     )
@@ -179,11 +283,12 @@ def _list_com_ports():
     ]
 
 def _try_open_port(port: str, baud: int) -> Optional[str]:
-    """Open and immediately close the port — just verifying it's accessible."""
+    """Open and immediately close the port — just verifying it's accessible.
+    Uses dsrdtr=True to prevent DTR toggling that resets Arduino UNO."""
     if not SERIAL_AVAILABLE:
         return "pyserial not installed — run: pip install pyserial"
     try:
-        s = serial.Serial(port, baud, timeout=1)
+        s = serial.Serial(port, baud, timeout=1, dsrdtr=True, rtscts=True)
         s.close()
         return None
     except serial.SerialException as e:
@@ -211,11 +316,21 @@ def _validate_connections():
             })
             _add_log("WARN", f"{state['device']} lost — {port} no longer available")
             continue
-        # 2) Port exists but can't be opened (another process grabbed it or device changed)
+        # 2) For EMG: the reader thread holds the port open — don't try to re-open it
+        if node == "emg":
+            if _emg_thread and _emg_thread.is_alive():
+                continue   # reader is running → port is healthy
+            else:
+                # Reader thread died unexpectedly → mark error
+                connection_state[node].update({
+                    "status": "error", "port": None, "error": "EMG reader thread stopped"
+                })
+                _add_log("ERROR", "EMG reader thread is no longer running")
+                continue
+
+        # 3) For non-EMG nodes (arm): verify port is still accessible
         err = _try_open_port(port, state["baud"])
         if err:
-            if node == "emg":
-                _stop_emg_reader()
             connection_state[node].update({
                 "status": "error", "port": None, "error": err
             })
