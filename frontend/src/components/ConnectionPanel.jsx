@@ -21,11 +21,15 @@ function NodeRow({ node, ports, connections, onConnect, onDisconnect, onRefresh,
     const isConnected = status === "connected";
     const isBusy = status === "connecting";
 
-    // Pre-fill last known port
+    // Auto-select Arduino port if available
     useEffect(() => {
-        if (conn.port) setSelectedPort(conn.port);
-        else if (ports.length > 0 && !selectedPort) setSelectedPort(ports[0].port);
-    }, [conn.port, ports]);
+        if (conn.port) {
+            setSelectedPort(conn.port);
+        } else if (ports.length > 0 && !selectedPort) {
+            const arduinoPort = ports.find(p => p.is_arduino);
+            setSelectedPort(arduinoPort ? arduinoPort.port : ports[0].port);
+        }
+    }, [conn.port, ports, selectedPort]);
 
     // Auto-disconnect if port is changed while connected
     const handlePortChange = (newPort) => {
@@ -34,6 +38,8 @@ function NodeRow({ node, ports, connections, onConnect, onDisconnect, onRefresh,
         }
         setSelectedPort(newPort);
     };
+
+    const isArduinoSelected = ports.find(p => p.port === selectedPort)?.is_arduino;
 
     return (
         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -55,13 +61,15 @@ function NodeRow({ node, ports, connections, onConnect, onDisconnect, onRefresh,
                 style={{
                     background: "rgba(0,0,0,0.4)",
                     border: `1px solid ${isConnected ? node.color + "55" : "rgba(255,255,255,0.1)"}`,
-                    color: "#c8d0e8",
+                    color: isArduinoSelected ? "#00d4ff" : "#c8d0e8",
                 }}
             >
                 {ports.length === 0
                     ? <option value="">No ports</option>
                     : ports.map((p) => (
-                        <option key={p.port} value={p.port}>{p.port}</option>
+                        <option key={p.port} value={p.port}>
+                            {p.port} {p.is_arduino ? "(ARDUINO)" : ""}
+                        </option>
                     ))
                 }
             </select>

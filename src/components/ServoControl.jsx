@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { updateServos } from "../api";
 
 const SERVOS = [
@@ -17,18 +17,73 @@ export default function ServoControl() {
     const [angles, setAngles] = useState(DEFAULT_ANGLES);
     const [engaged, setEngaged] = useState(false);
     const [sending, setSending] = useState(false);
+    const [gamepadActive, setGamepadActive] = useState(false);
+    
+    const rafRef = useRef(null);
+    const lastSentRef = useRef(Date.now());
+    const anglesRef = useRef(DEFAULT_ANGLES);
 
     const send = useCallback(async (next) => {
+        const now = Date.now();
+        // Throttle to max 20Hz (50ms) to avoid overworking Serial buffer
+        if (now - lastSentRef.current < 50) return;
+        
+        lastSentRef.current = now;
         setSending(true);
         try {
             await updateServos(next);
-        } catch { /* backend offline — UI still works */ }
+        } catch { /* backend offline */ }
         setSending(false);
     }, []);
 
+    // --- Gamepad Logic ---
+    useEffect(() => {
+        if (!gamepadActive || !engaged) {
+            cancelAnimationFrame(rafRef.current);
+            return;
+        }
+
+        const pollGamepad = () => {
+            const gamepads = navigator.getGamepads();
+            const gp = gamepads[0]; // Primary controller
+            
+            if (gp) {
+                // Mapping PS4 Axis (0-3: Sticks, 4: L2, 5: R2)
+                const next = { ...anglesRef.current };
+                
+                // Axis Mapping (Analog Sticks)
+                // - Stick inputs (-1 to 1) converted to Degrees (0 to 180)
+                next.S1 = Math.round((gp.axes[0] + 1) * 90);           // LX: Base
+                next.S2 = Math.round((gp.axes[1] + 1) * 90);           // LY: Shoulder
+                next.S3 = Math.round((gp.axes[3] + 1) * 90);           // RY: Elbow
+                next.S4 = Math.round((gp.axes[2] + 1) * 90);           // RX: Wrist Roll
+                
+                // Button Mapping (Triggers for Gripper)
+                // L2 (Buttons[6]) closes, R2 (Buttons[7]) opens
+                const l2 = gp.buttons[6].value;
+                const r2 = gp.buttons[7].value;
+                if (l2 > 0.1) next.S6 = Math.max(0, next.S6 - 5);
+                if (r2 > 0.1) next.S6 = Math.min(180, next.S6 + 5);
+
+                // Update state if changed
+                if (JSON.stringify(next) !== JSON.stringify(anglesRef.current)) {
+                    anglesRef.current = next;
+                    setAngles(next);
+                    send(next);
+                }
+            }
+            rafRef.current = requestAnimationFrame(pollGamepad);
+        };
+
+        rafRef.current = requestAnimationFrame(pollGamepad);
+        return () => cancelAnimationFrame(rafRef.current);
+    }, [gamepadActive, engaged, send]);
+
     const handleSlider = (id, val) => {
+        if (gamepadActive) return; // Ignore manual slider if Gamepad is taking over
         const next = { ...angles, [id]: Number(val) };
         setAngles(next);
+        anglesRef.current = next;
         if (engaged) send(next);
     };
 
@@ -39,14 +94,17 @@ export default function ServoControl() {
 
     const release = async () => {
         setEngaged(false);
+        setGamepadActive(false);
         const next = RELEASE_ANGLES;
         setAngles(next);
+        anglesRef.current = next;
         await send(next);
     };
 
     const reset = async () => {
         const next = DEFAULT_ANGLES;
         setAngles(next);
+        anglesRef.current = next;
         if (engaged) await send(next);
     };
 
@@ -61,20 +119,23 @@ export default function ServoControl() {
                     <h2 className="text-sm font-semibold text-neural-text">6-DOF Control</h2>
                 </div>
                 <div className="flex items-center gap-2">
+                    <button 
+                        onClick={() => setGamepadActive(!gamepadActive)}
+                        className={`text-[9px] font-mono border rounded px-1.5 py-0.5 transition-colors ${gamepadActive ? "border-neural-cyan text-neural-cyan bg-neural-cyan/10" : "border-neural-border text-neural-muted"}`}
+                    >
+                        🎮 {gamepadActive ? "PAD ACTIVE" : "PAD OFF"}
+                    </button>
                     <span className={`status-dot ${engaged ? "online" : "offline"}`} />
-                    <span className={`text-xs font-mono ${engaged ? "text-neural-cyan" : "text-red-400"}`}>
-                        {engaged ? "ENGAGED" : "IDLE"}
-                    </span>
                 </div>
             </div>
 
             {/* Sliders */}
-            <div className="flex flex-col gap-3.5">
+            <div className="flex flex-col gap-3.5 opacity-90">
                 {SERVOS.map(({ id, label }) => {
                     const val = angles[id];
                     const pct = (val / 180) * 100;
                     return (
-                        <div key={id}>
+                        <div key={id} className={gamepadActive ? "pointer-events-none grayscale-[0.5]" : ""}>
                             <div className="flex items-center justify-between mb-1.5">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[9px] font-mono text-neural-muted bg-neural-bg border border-neural-border rounded px-1.5 py-0.5">
@@ -105,31 +166,25 @@ export default function ServoControl() {
                 <button
                     onClick={engage}
                     disabled={engaged || sending}
-                    className="btn-primary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="btn-primary flex-1 disabled:opacity-40"
                 >
                     Engage
                 </button>
                 <button
                     onClick={release}
                     disabled={!engaged || sending}
-                    className="btn-danger flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="btn-danger flex-1 disabled:opacity-40"
                 >
                     Release
                 </button>
                 <button
                     onClick={reset}
                     disabled={sending}
-                    className="btn-neutral flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="btn-neutral flex-1 disabled:opacity-40"
                 >
                     Reset
                 </button>
             </div>
-
-            {sending && (
-                <p className="text-[10px] font-mono text-neural-muted text-center -mt-2 animate-pulse">
-                    Transmitting…
-                </p>
-            )}
         </div>
     );
 }

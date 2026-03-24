@@ -277,10 +277,31 @@ def _add_log(level: str, message: str):
 def _list_com_ports():
     if not SERIAL_AVAILABLE:
         return []
-    return [
-        {"port": p.device, "description": p.description, "hwid": p.hwid}
-        for p in list_ports.comports()
-    ]
+    
+    ports = []
+    for p in list_ports.comports():
+        # Hide standard Bluetooth links
+        if p.description and "Bluetooth" in p.description:
+            continue
+        if p.hwid and "BTHENUM" in p.hwid:
+            continue
+            
+        desc = (p.description or "").upper()
+        hwid = (p.hwid or "").upper()
+        
+        is_arduino = any(k in desc or k in hwid for k in [
+            "ARDUINO", "CH340", "CP210", "FTDI", "USB SERIAL", "USB-SERIAL",
+            "VID:PID=2341", "VID:PID=1A86", "VID:PID=0403"
+        ])
+        
+        ports.append({
+            "port": p.device,
+            "description": p.description,
+            "hwid": p.hwid,
+            "is_arduino": is_arduino
+        })
+        
+    return ports
 
 def _try_open_port(port: str, baud: int) -> Optional[str]:
     """Open and immediately close the port — just verifying it's accessible.
