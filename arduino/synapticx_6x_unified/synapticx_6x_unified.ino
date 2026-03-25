@@ -1,5 +1,6 @@
 /*
   SynapticX 6X — Unified Firmware (PCA9685 Version)
+  Optimized for low latency.
   
   Connections:
   - BioAmp EXG Pill (EMG) -> A0
@@ -20,15 +21,19 @@
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // Servo pulse mapping (50Hz)
-// Standard 0-180 servos usually take 150 to 600 pulse length on PCA9685
 #define SERVOMIN  150 
 #define SERVOMAX  600 
 
 const int emgPin = A0;
 
-// --- State ---
-String inputString = "";
-bool stringComplete = false;
+// Config for non-blocking timing
+unsigned long lastSampleTime = 0;
+const unsigned long sampleInterval = 2000; // 2000 microseconds = 2ms (500Hz)
+
+// Buffer for incoming serial data
+const byte numChars = 64;
+char receivedChars[numChars];
+boolean newData = false;
 
 void setup() {
   Serial.begin(115200);
@@ -42,51 +47,69 @@ void setup() {
     int pulse = map(90, 0, 180, SERVOMIN, SERVOMAX);
     pwm.setPWM(i, 0, pulse);
   }
-  
-  inputString.reserve(100);
 }
 
 void loop() {
-  // 1. Read and Send EMG (BioAmp EXG)
-  int emgRaw = analogRead(emgPin);
-  Serial.println(emgRaw);
+  // 1. Read incoming serial non-blocking
+  recvWithEndMarker();
   
-  // 2. Process incoming commands
-  if (stringComplete) {
-    parseServoCommand(inputString);
-    inputString = "";
-    stringComplete = false;
+  // 2. Process incoming commands without blocking the loop
+  if (newData) {
+    parseServoCommand();
+    newData = false;
   }
   
-  delay(2); // ~500Hz sampling loop
+  // 3. Read and Send EMG non-blocking at fixed interval
+  unsigned long currentMicros = micros();
+  // We use subtraction here to handle millis/micros rollover perfectly
+  if (currentMicros - lastSampleTime >= sampleInterval) {
+    lastSampleTime = currentMicros;
+    int emgRaw = analogRead(emgPin);
+    Serial.println(emgRaw);
+  }
 }
 
-void serialEvent() {
-  while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    inputString += inChar;
-    if (inChar == '\n') {
-      stringComplete = true;
+// Low latency serial receiver
+void recvWithEndMarker() {
+  static byte ndx = 0;
+  char endMarker = '\n';
+  char rc;
+  
+  // While data is available, read it. Keeps the buffer empty and responsive.
+  while (Serial.available() > 0 && newData == false) {
+    rc = Serial.read();
+    
+    if (rc != endMarker) {
+      if (rc != '\r') { // Ignore carriage return if present
+        receivedChars[ndx] = rc;
+        ndx++;
+        if (ndx >= numChars) {
+          ndx = numChars - 1; // Prevent overflow
+        }
+      }
+    } else {
+      receivedChars[ndx] = '\0'; // terminate the C-string
+      ndx = 0;
+      newData = true;
     }
   }
 }
 
-void parseServoCommand(String cmd) {
-  int lastIndex = 0;
+// Fast string parsing
+void parseServoCommand() {
+  // Expect format: "90,90,90,90,90,90"
+  char *strtokIndx; 
   int servoIdx = 0;
   
-  for (int i = 0; i < cmd.length(); i++) {
-    if (cmd[i] == ',' || cmd[i] == '\n') {
-      String valStr = cmd.substring(lastIndex, i);
-      int angle = valStr.toInt();
-      
-      if (servoIdx < 6) {
-        angle = constrain(angle, 0, 180);
-        int pulse = map(angle, 0, 180, SERVOMIN, SERVOMAX);
-        pwm.setPWM(servoIdx, 0, pulse);
-        servoIdx++;
-      }
-      lastIndex = i + 1;
-    }
+  strtokIndx = strtok(receivedChars, ","); // First parsing
+  while (strtokIndx != NULL && servoIdx < 6) {
+    int angle = atoi(strtokIndx); // fast ASCII to INT conversion
+    angle = constrain(angle, 0, 180);
+    
+    int pulse = map(angle, 0, 180, SERVOMIN, SERVOMAX);
+    pwm.setPWM(servoIdx, 0, pulse);
+    
+    servoIdx++;
+    strtokIndx = strtok(NULL, ","); // Continue parsing
   }
 }
