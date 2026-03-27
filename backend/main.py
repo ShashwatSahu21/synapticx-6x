@@ -310,7 +310,7 @@ def _try_open_port(port: str, baud: int) -> Optional[str]:
     if not SERIAL_AVAILABLE:
         return "pyserial not installed — run: pip install pyserial"
     try:
-        s = serial.Serial(port, baud, timeout=1, dsrdtr=True, rtscts=True)
+        s = serial.Serial(port, baud, timeout=1, dsrdtr=True)
         s.close()
         return None
     except serial.SerialException as e:
@@ -444,7 +444,7 @@ def connect_node(body: ConnectRequest):
         try:
             if _arm_serial:
                 _arm_serial.close()
-            _arm_serial = serial.Serial(port, baud, timeout=1, dsrdtr=True, rtscts=True)
+            _arm_serial = serial.Serial(port, baud, timeout=1, dsrdtr=True)
         except Exception as e:
             _add_log("ERROR", f"Failed to hold arm serial connection: {e}")
 
