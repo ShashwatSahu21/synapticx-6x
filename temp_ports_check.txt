@@ -1,0 +1,7 @@
+COM4::Standard Serial over Bluetooth link (COM4)
+COM5::Arduino Uno (COM5)
+COM8::Standard Serial over Bluetooth link (COM8)
+COM10::Standard Serial over Bluetooth link (COM10)
+COM5::Standard Serial over Bluetooth link (COM5)
+COM6::Standard Serial over Bluetooth link (COM6)
+COM7::Standard Serial over Bluetooth link (COM7)
