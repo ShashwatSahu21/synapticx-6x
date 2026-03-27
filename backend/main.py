@@ -103,7 +103,7 @@ connection_state: Dict[str, dict] = {
     },
     "arm": {
         "port": None, "status": "disconnected",
-        "device": "Arduino ARM", "baud": 9600,
+        "device": "Arduino ARM", "baud": 115200,
         "last_seen": None, "error": None,
     },
 }
@@ -113,6 +113,7 @@ connection_state: Dict[str, dict] = {
 EMG_BUFFER: deque = deque(maxlen=300)   # ~3 s at 100 Hz
 _emg_thread: Optional[threading.Thread] = None
 _emg_stop:   threading.Event = threading.Event()
+_arm_serial: Optional[serial.Serial] = None
 _emg_lock:   threading.Lock  = threading.Lock()
 _sample_idx: int = 0
 FS = 10000  # Sampling frequency based on Spike_Recorder.ino 
@@ -349,13 +350,16 @@ def _validate_connections():
                 _add_log("ERROR", "EMG reader thread is no longer running")
                 continue
 
-        # 3) For non-EMG nodes (arm): verify port is still accessible
-        err = _try_open_port(port, state["baud"])
-        if err:
-            connection_state[node].update({
-                "status": "error", "port": None, "error": err
-            })
-            _add_log("ERROR", f"{state['device']} health-check failed on {port}: {err}")
+        # 3) For non-EMG nodes (arm): use the open socket to check health, don't try to re-open
+        if node == "arm":
+            global _arm_serial
+            if _arm_serial and _arm_serial.is_open:
+                # Still healthy!
+                continue
+            else:
+                connection_state[node].update({"status": "error", "port": None})
+                _add_log("ERROR", f"{state['device']} connection dropped.")
+                continue
 
 
 def _watchdog():
@@ -435,6 +439,14 @@ def connect_node(body: ConnectRequest):
     # If this is the EMG node, start the serial reader thread
     if node == "emg":
         _start_emg_reader(port, baud)
+    elif node == "arm":
+        global _arm_serial
+        try:
+            if _arm_serial:
+                _arm_serial.close()
+            _arm_serial = serial.Serial(port, baud, timeout=1, dsrdtr=True, rtscts=True)
+        except Exception as e:
+            _add_log("ERROR", f"Failed to hold arm serial connection: {e}")
 
     return {"status": "ok", "node": node, "connections": connection_state}
 
@@ -447,6 +459,14 @@ def disconnect_node(body: ConnectRequest):
 
     if node == "emg":
         _stop_emg_reader()
+    elif node == "arm":
+        global _arm_serial
+        if _arm_serial:
+            try:
+                _arm_serial.close()
+            except Exception:
+                pass
+            _arm_serial = None
 
     prev_port = connection_state[node]["port"]
     connection_state[node].update({"status": "disconnected", "port": None, "error": None})
@@ -468,6 +488,17 @@ def update_servo(body: ServoUpdate):
             servo_state[name] = clamped
             updated.append(name)
             _add_log("INFO", f"Servo '{name}' → {clamped:.1f}°")
+
+    # Send data to Arduino
+    global _arm_serial
+    if _arm_serial and _arm_serial.is_open:
+        # Ordered as: base, shoulder, elbow, wrist, gripper, auxiliary
+        cmd = f"{int(servo_state['base'])},{int(servo_state['shoulder'])},{int(servo_state['elbow'])},{int(servo_state['wrist'])},{int(servo_state['gripper'])},{int(servo_state['auxiliary'])}\n"
+        try:
+            _arm_serial.write(cmd.encode('ascii'))
+        except Exception as e:
+            _add_log("ERROR", f"Failed to write to ARM: {e}")
+
     return {"status": "ok", "updated": updated, "servo_state": servo_state}
 
 

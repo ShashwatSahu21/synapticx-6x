@@ -2,16 +2,16 @@ import { useState, useCallback } from "react";
 import { updateServos } from "../api";
 
 const SERVOS = [
-    { id: "S1", label: "Base Rotation",   min: 0, max: 180 },
-    { id: "S2", label: "Shoulder Pitch",  min: 0, max: 180 },
-    { id: "S3", label: "Elbow Flex",      min: 0, max: 180 },
-    { id: "S4", label: "Wrist Roll",      min: 0, max: 180 },
-    { id: "S5", label: "Wrist Pitch",     min: 0, max: 180 },
-    { id: "S6", label: "Gripper",         min: 0, max: 180 },
+    { id: "base",      label: "Base Rotation",   min: 0, max: 180 },
+    { id: "shoulder",  label: "Shoulder Pitch",  min: 0, max: 180 },
+    { id: "elbow",     label: "Elbow Flex",      min: 0, max: 180 },
+    { id: "wrist",     label: "Wrist Roll",      min: 0, max: 180 },
+    { id: "auxiliary", label: "Wrist Pitch",     min: 0, max: 180 },
+    { id: "gripper",   label: "Gripper",         min: 0, max: 180 },
 ];
 
-const DEFAULT_ANGLES = { S1: 90, S2: 90, S3: 90, S4: 90, S5: 90, S6: 90 };
-const RELEASE_ANGLES = { S1: 0,  S2: 0,  S3: 0,  S4: 0,  S5: 0,  S6: 0  };
+const DEFAULT_ANGLES = { base: 90, shoulder: 90, elbow: 90, wrist: 90, auxiliary: 90, gripper: 90 };
+const RELEASE_ANGLES = { base: 90, shoulder: 90, elbow: 90, wrist: 90, auxiliary: 90, gripper: 90 };
 
 export default function ServoControl() {
     const [angles, setAngles] = useState(DEFAULT_ANGLES);

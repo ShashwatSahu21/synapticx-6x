@@ -1,9 +1,8 @@
 /*
-  SynapticX 6X — Unified Firmware (PCA9685 Version)
-  Optimized for low latency.
+  SynapticX 6X — Mechanical Control Firmware (PCA9685 Version)
+  Optimized for low latency mechanical input. Bio-signals removed for now.
   
   Connections:
-  - BioAmp EXG Pill (EMG) -> A0
   - PCA9685 Servo Driver:
     - SDA -> A4
     - SCL -> A5
@@ -23,12 +22,6 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // Servo pulse mapping (50Hz)
 #define SERVOMIN  150 
 #define SERVOMAX  600 
-
-const int emgPin = A0;
-
-// Config for non-blocking timing
-unsigned long lastSampleTime = 0;
-const unsigned long sampleInterval = 2000; // 2000 microseconds = 2ms (500Hz)
 
 // Buffer for incoming serial data
 const byte numChars = 64;
@@ -57,15 +50,6 @@ void loop() {
   if (newData) {
     parseServoCommand();
     newData = false;
-  }
-  
-  // 3. Read and Send EMG non-blocking at fixed interval
-  unsigned long currentMicros = micros();
-  // We use subtraction here to handle millis/micros rollover perfectly
-  if (currentMicros - lastSampleTime >= sampleInterval) {
-    lastSampleTime = currentMicros;
-    int emgRaw = analogRead(emgPin);
-    Serial.println(emgRaw);
   }
 }
 

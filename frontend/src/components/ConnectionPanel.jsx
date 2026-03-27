@@ -3,7 +3,7 @@ import { fetchPorts, connectNode, disconnectNode } from "../api";
 
 const NODES = [
     { id: "emg", label: "EMG Node", icon: "⚡", defaultBaud: 230400, color: "#00d4ff" },
-    { id: "arm", label: "Arduino ARM", icon: "🤖", defaultBaud: 9600, color: "#a78bfa" },
+    { id: "arm", label: "Arduino ARM", icon: "🤖", defaultBaud: 115200, color: "#a78bfa" },
 ];
 
 const STATUS_META = {
