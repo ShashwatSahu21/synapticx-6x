@@ -1,3 +1,17 @@
+/*
+  SynapticX 6X — Mechanical Control Firmware (PCA9685 Version)
+  Optimized for low latency mechanical input. Bio-signals removed for now.
+
+  Connections:
+  - PCA9685 Servo Driver:
+    - SDA -> A4
+    - SCL -> A5
+    - VCC -> 5V
+    - GND -> GND
+
+  Baud rate: 115200
+  Requires "Adafruit PWM Servo Driver Library" in Arduino IDE.
+*/
 
 #include <Adafruit_PWMServoDriver.h>
 #include <Wire.h>
