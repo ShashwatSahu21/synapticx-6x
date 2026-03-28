@@ -1,3 +1,0 @@
-CompileFlags:
-  Add: [-xc++, -DARDUINO=10813, -DARDUINO_AVR_UNO, -DARDUINO_ARCH_AVR]
-  Remove: [-m64]
