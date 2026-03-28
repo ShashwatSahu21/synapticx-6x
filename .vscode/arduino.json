@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "arduino/synapticx_6x_unified/synapticx_6x_unified.ino",
+    "configuration": "cpu=atmega328p",
+    "output": "arduino/build"
+}
