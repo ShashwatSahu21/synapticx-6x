@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { updateServos } from "../api";
 
 // ── Servo mapping: which axis/button → which DOF ─────────────────────────────
 const SERVO_MAP = [
-    { dof: "Base Rotation", input: "Left X (Axis 0)", color: "#00d4ff" },
-    { dof: "Shoulder", input: "Left Y (Axis 1)", color: "#a78bfa" },
-    { dof: "Elbow", input: "Right Y (Axis 3)", color: "#f59e0b" },
-    { dof: "Wrist Pitch", input: "Right X (Axis 2)", color: "#34d399" },
-    { dof: "Wrist Roll", input: "L2 / R2", color: "#f472b6" },
-    { dof: "Gripper", input: "○ / ×", color: "#fb923c" },
+    { key: "base", dof: "Base Rotation", input: "Left X (Axis 0)", color: "#00d4ff" },
+    { key: "shoulder", dof: "Shoulder", input: "Left Y (Axis 1)", color: "#a78bfa" },
+    { key: "elbow", dof: "Elbow", input: "Right Y (Axis 3)", color: "#f59e0b" },
+    { key: "wrist", dof: "Wrist Pitch", input: "Right X (Axis 2)", color: "#34d399" },
+    { key: "auxiliary", dof: "Wrist Roll", input: "L2 / R2", color: "#f472b6" },
+    { key: "gripper", dof: "Gripper", input: "○ / ×", color: "#fb923c" },
 ];
 
 const BUTTON_LABELS = [
@@ -130,6 +131,10 @@ export default function ControllerPage() {
     const [buttons, setButtons] = useState([]);
     const [pollRate, setPollRate] = useState(0);
     const [lastInputTime, setLastInputTime] = useState(null);
+    const [liveSync, setLiveSync] = useState(false);
+    
+    const lastSentAngles = useRef({});
+    const lastSentTime = useRef(0);
     const rafRef = useRef(null);
     const lastFrameTime = useRef(performance.now());
     const frameCount = useRef(0);
@@ -175,6 +180,37 @@ export default function ControllerPage() {
         return () => cancelAnimationFrame(rafRef.current);
     }, [poll]);
 
+    // ── Live Sync Logic ────────────────────────────────────────────────────────
+    useEffect(() => {
+        if (!liveSync || !gamepad || axes.length < 4) return;
+
+        // Calculate angles
+        // 1. Center around 90 + input * 90. Clamp 0..180
+        const calc = (v) => Math.max(0, Math.min(180, Math.round(90 + v * 90)));
+        
+        const nextAngles = {
+            base:     calc(applyDeadZone(axes[0] || 0)),
+            shoulder: calc(applyDeadZone(axes[1] || 0)),
+            elbow:    calc(applyDeadZone(axes[3] || 0)), // Right Y
+            wrist:    calc(applyDeadZone(axes[2] || 0)), // Right X
+            // Auxiliary (L2/R2) - map diff of triggers
+            auxiliary: calc((buttons[7]?.value || 0) - (buttons[6]?.value || 0)),
+            // Gripper: Cross (0) to toggle or hold? Let's use Cross for closed (180), Circle for open (0)
+            gripper:   buttons[0]?.pressed ? 180 : (buttons[1]?.pressed ? 0 : (lastSentAngles.current.gripper ?? 90))
+        };
+
+        // Check for meaningful change (avoid noise)
+        const hasDiff = Object.keys(nextAngles).some(k => nextAngles[k] !== lastSentAngles.current[k]);
+        const now = Date.now();
+        
+        // Throttled update (max 20 Hz / 50ms)
+        if (hasDiff && (now - lastSentTime.current) > 50) {
+            updateServos(nextAngles);
+            lastSentAngles.current = nextAngles;
+            lastSentTime.current = now;
+        }
+    }, [axes, buttons, gamepad, liveSync]);
+
     const formatLastInput = () => {
         if (!lastInputTime) return "—";
         const s = ((Date.now() - lastInputTime) / 1000).toFixed(1);
@@ -209,6 +245,31 @@ export default function ControllerPage() {
                         )}
                     </div>
                 </div>
+
+                {/* Live Sync Toggle */}
+                {gamepad && (
+                    <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
+                        <span className="text-[10px] uppercase tracking-widest text-neural-muted font-bold">Arm Sync</span>
+                        <button
+                            onClick={() => setLiveSync(!liveSync)}
+                            className="relative w-12 h-6 rounded-full transition-all duration-300 flex items-center px-1"
+                            style={{
+                                background: liveSync ? "rgba(0,212,255,0.2)" : "rgba(255,255,255,0.1)",
+                                border: `1px solid ${liveSync ? "rgba(0,212,255,0.4)" : "rgba(255,255,255,0.2)"}`,
+                                boxShadow: liveSync ? "0 0 12px rgba(0,212,255,0.2)" : "none"
+                            }}
+                        >
+                            <div
+                                className="w-4 h-4 rounded-full transition-transform duration-300"
+                                style={{
+                                    background: liveSync ? "#00d4ff" : "#3a3f5c",
+                                    transform: liveSync ? "translateX(24px)" : "translateX(0)",
+                                    boxShadow: liveSync ? "0 0 8px #00d4ff" : "none"
+                                }}
+                            />
+                        </button>
+                    </div>
+                )}
 
                 {/* Telemetry strip */}
                 <div className="flex items-center gap-5 flex-shrink-0">
