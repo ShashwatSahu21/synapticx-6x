@@ -1,0 +1,108 @@
+{
+  "name": "SynapticX 6X Default",
+  "description": "Default 6-DOF robotic arm configuration. Modify for your arm.",
+  "version": "1.0.0",
+  
+  "joints": [
+    {
+      "id": "base",
+      "label": "Base Rotation",
+      "channel": 0,
+      "min_angle": 0,
+      "max_angle": 180,
+      "home_angle": 90,
+      "offset": 0,
+      "inverted": false,
+      "axis": "Y",
+      "speed_limit": 120
+    },
+    {
+      "id": "shoulder",
+      "label": "Shoulder Pitch",
+      "channel": 1,
+      "min_angle": 15,
+      "max_angle": 165,
+      "home_angle": 90,
+      "offset": 0,
+      "inverted": false,
+      "axis": "Z",
+      "speed_limit": 90
+    },
+    {
+      "id": "elbow",
+      "label": "Elbow Flex",
+      "channel": 2,
+      "min_angle": 0,
+      "max_angle": 180,
+      "home_angle": 90,
+      "offset": 0,
+      "inverted": false,
+      "axis": "Z",
+      "speed_limit": 120
+    },
+    {
+      "id": "wrist",
+      "label": "Wrist Pitch",
+      "channel": 3,
+      "min_angle": 0,
+      "max_angle": 180,
+      "home_angle": 90,
+      "offset": 0,
+      "inverted": false,
+      "axis": "Z",
+      "speed_limit": 180
+    },
+    {
+      "id": "gripper",
+      "label": "Wrist Roll",
+      "channel": 4,
+      "min_angle": 0,
+      "max_angle": 180,
+      "home_angle": 90,
+      "offset": 0,
+      "inverted": false,
+      "axis": "Y",
+      "speed_limit": 180
+    },
+    {
+      "id": "auxiliary",
+      "label": "Gripper",
+      "channel": 5,
+      "min_angle": 0,
+      "max_angle": 180,
+      "home_angle": 90,
+      "offset": 0,
+      "inverted": false,
+      "axis": "Z",
+      "speed_limit": 180
+    }
+  ],
+
+  "links": {
+    "base_height": 0.12,
+    "upper_arm": 0.55,
+    "forearm": 0.45,
+    "wrist_length": 0.20,
+    "gripper_length": 0.15
+  },
+
+  "serial": {
+    "baud": 115200,
+    "protocol": "csv",
+    "timeout": 1.0
+  },
+
+  "simulation": {
+    "enabled": false,
+    "update_rate_hz": 50,
+    "physics": false
+  },
+
+  "ros": {
+    "enabled": false,
+    "ws_port": 9090,
+    "namespace": "/synapticx",
+    "joint_state_topic": "/joint_states",
+    "joint_command_topic": "/joint_commands"
+  }
+}
