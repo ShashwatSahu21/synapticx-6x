@@ -123,15 +123,38 @@ _sample_idx: int = 0
 FS = 10000  # Sampling frequency based on Spike_Recorder.ino 
 _hpf, _notch, _lpf = None, None, None
 
-# ─── Bio-Signal Engine (NEW — does NOT modify existing code) ─────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# REAL-TIME BIO-SIGNAL ENGINE — Adaptive Calibration + Closed-Loop Servo Drive
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Pipeline:  BioAmp EXG Pill → Serial → DSP Filters → Feature Extraction
+#            → Adaptive Threshold → Angle Mapping → EMA Smoothing → Servo Output
+#
+# NO fake/simulated data. Every value comes from the physical sensor.
+# ═══════════════════════════════════════════════════════════════════════════════
 
 # Control mode: "manual" | "biosignal" | "hybrid"
 _control_mode: str = "manual"
 
-# RMS sliding window — stores recent rectified, filtered samples for RMS calc
-_RMS_WINDOW_SIZE = 200   # ~20 ms at 10 kHz
+# ─── Feature Extraction Buffers ───────────────────────────────────────────────
+
+_RMS_WINDOW_SIZE = 200   # ~20 ms at 10 kHz → one RMS snapshot per 200 samples
 _rms_window: deque = deque(maxlen=_RMS_WINDOW_SIZE)
 _current_rms: float = 0.0
+
+# Mean Absolute Value (MAV) — alternative amplitude feature
+_mav_window: deque = deque(maxlen=_RMS_WINDOW_SIZE)
+_current_mav: float = 0.0
+
+# Waveform Length (WL) — signal complexity/frequency indicator
+_wl_window: deque = deque(maxlen=_RMS_WINDOW_SIZE)
+_current_wl: float = 0.0
+_prev_filtered_sample: float = 0.0
+
+# Zero-Crossing Rate (ZCR) — dominant frequency estimation
+_zcr_window: deque = deque(maxlen=500)  # ~50 ms window
+_zcr_prev_sign: bool = True  # True = positive
+_current_zcr: float = 0.0    # crossings per second
 
 # RMS history for fatigue detection (stores RMS values every ~100 ms)
 _RMS_HISTORY: deque = deque(maxlen=100)  # last ~10 s of RMS snapshots
@@ -141,18 +164,48 @@ _RMS_SNAPSHOT_INTERVAL = 1000  # every 1000 samples = ~100 ms at 10 kHz
 # Fatigue state: 0.0 (fresh) → 1.0 (fully fatigued)
 _fatigue_level: float = 0.0
 
-# Bio-signal → angle mapping config
+# ─── Adaptive Calibration System ──────────────────────────────────────────────
+# Auto-calibrates from the first ~3 seconds of REAL baseline signal.
+# Records RMS during rest, computes noise floor statistics, then sets
+# adaptive thresholds. Can be re-triggered at any time.
+
+_CALIB_DURATION_SAMPLES = 30000  # 3 seconds at 10 kHz
+_calib_state = {
+    "status": "idle",         # "idle" | "collecting" | "done" | "failed"
+    "samples_collected": 0,
+    "target_samples": _CALIB_DURATION_SAMPLES,
+    "noise_rms_values": [],   # RMS snapshots during baseline collection
+    "noise_mean": 0.0,        # mean of baseline RMS
+    "noise_std": 0.0,         # std dev of baseline RMS
+    "noise_floor": 0.0,       # computed noise floor: mean + 3*std
+    "auto_rms_max": 300.0,    # will be updated on first contraction
+    "peak_rms_seen": 0.0,     # highest RMS ever seen live
+    "contraction_count": 0,   # number of muscle activations detected
+    "last_calibrated": None,
+}
+_calib_rms_buffer: deque = deque(maxlen=200)  # local RMS buffer for calibration
+_calib_sample_count: int = 0
+
+# ─── Bio-Signal → Angle Mapping Config ────────────────────────────────────────
+
 _bio_config = {
-    "rms_threshold": 30.0,    # min RMS to start mapping (noise floor)
-    "rms_max": 300.0,         # RMS at full contraction
-    "gamma": 2.0,             # response curve exponent (>1 = less sensitive near threshold)
-    "ema_alpha": 0.15,        # smoothing factor (lower = smoother)
-    "target_joint": "auxiliary",  # physical gripper on channel 5
-    "angle_min": 0.0,
-    "angle_max": 180.0,
+    "rms_threshold": 30.0,        # min RMS to start mapping (auto-set by calibration)
+    "rms_max": 300.0,             # RMS at full contraction (auto-adapts)
+    "gamma": 1.5,                 # slightly more linear response
+    "ema_alpha": 0.25,            # FASTER smoothing (more responsive)
+    "target_joint": "shoulder",    # physical shoulder (Channel 1)
+    "angle_min": 10.0,            # servo safety
+    "angle_max": 170.0,           # servo safety
+    "dead_zone": 1.0,             # ULTRA sensitive dead-zone (was 5.0)
+    "contraction_hold_ms": 50,    # faster debounce
+    "servo_rate_limit_ms": 20,    # higher update frequency (~50 Hz)
 }
 _bio_smoothed_angle: float = 90.0
+_bio_last_sent_angle: float = 90.0    # last angle actually sent to servo
 _bio_drive_active: bool = False
+_bio_last_servo_write: float = 0.0    # timestamp of last serial write
+_bio_contraction_start: float = 0.0   # when current contraction began
+_bio_is_contracting: bool = False     # is muscle currently activated?
 
 
 def _emg_reader(port: str, baud: int, stop_event: threading.Event):
@@ -241,32 +294,98 @@ def _emg_reader(port: str, baud: int, stop_event: threading.Event):
                 EMG_BUFFER.append({"t": _sample_idx, "v": round(voltage, 4), "raw": out10})
                 _sample_idx += 1
 
-                # ── Bio-Signal RMS computation (inline, uses existing filtered value) ──
-                _rms_window.append(abs(y))  # rectified filtered signal
+                # ══════════════════════════════════════════════════════════════
+                # REAL FEATURE EXTRACTION — all computed from actual filtered signal
+                # ══════════════════════════════════════════════════════════════
+
+                abs_y = abs(y)
+
+                # ── RMS (Root Mean Square) ──
+                _rms_window.append(y * y)  # squared value for RMS
                 if len(_rms_window) >= _RMS_WINDOW_SIZE:
                     global _current_rms, _rms_snapshot_counter, _fatigue_level
-                    _current_rms = math.sqrt(sum(s * s for s in _rms_window) / len(_rms_window))
+                    global _current_mav, _current_wl, _current_zcr
+                    global _prev_filtered_sample, _calib_sample_count
+                    _current_rms = math.sqrt(sum(_rms_window) / len(_rms_window))
 
-                    # Periodic RMS snapshot for fatigue tracking
-                    _rms_snapshot_counter += 1
-                    if _rms_snapshot_counter >= _RMS_SNAPSHOT_INTERVAL:
-                        _rms_snapshot_counter = 0
-                        _RMS_HISTORY.append(_current_rms)
-                        # Fatigue = declining RMS over recent history
-                        if len(_RMS_HISTORY) >= 20:
-                            recent = list(_RMS_HISTORY)[-20:]
-                            first_half = sum(recent[:10]) / 10
-                            second_half = sum(recent[10:]) / 10
-                            if first_half > 0:
-                                drop = max(0.0, (first_half - second_half) / first_half)
-                                _fatigue_level = min(1.0, drop * 2.0)  # scale to 0-1
-                            else:
-                                _fatigue_level = 0.0
+                # ── MAV (Mean Absolute Value) ──
+                _mav_window.append(abs_y)
+                if len(_mav_window) >= _RMS_WINDOW_SIZE:
+                    _current_mav = sum(_mav_window) / len(_mav_window)
+
+                # ── Waveform Length (cumulative abs difference) ──
+                delta = abs(y - _prev_filtered_sample)
+                _wl_window.append(delta)
+                if len(_wl_window) >= _RMS_WINDOW_SIZE:
+                    _current_wl = sum(_wl_window)
+                _prev_filtered_sample = y
+
+                # ── Zero-Crossing Rate → dominant frequency ──
+                current_sign = y >= 0
+                crossed = 1 if current_sign != _zcr_prev_sign else 0
+                _zcr_prev_sign = current_sign
+                _zcr_window.append(crossed)
+                total_crossings = sum(_zcr_window)
+                window_duration = len(_zcr_window) / FS
+                if window_duration > 0:
+                    _current_zcr = (total_crossings / 2.0) / window_duration  # Hz
+
+                # ══════════════════════════════════════════════════════════════
+                # ADAPTIVE CALIBRATION — learns from the real signal
+                # ══════════════════════════════════════════════════════════════
+
+                if _calib_state["status"] == "collecting":
+                    _calib_sample_count += 1
+                    # Collect RMS snapshots every 200 samples during calibration
+                    _calib_rms_buffer.append(y * y)
+                    if len(_calib_rms_buffer) >= _RMS_WINDOW_SIZE and _calib_sample_count % _RMS_WINDOW_SIZE == 0:
+                        snap_rms = math.sqrt(sum(_calib_rms_buffer) / len(_calib_rms_buffer))
+                        _calib_state["noise_rms_values"].append(snap_rms)
+                    _calib_state["samples_collected"] = _calib_sample_count
+
+                    # Calibration complete?
+                    if _calib_sample_count >= _CALIB_DURATION_SAMPLES:
+                        _finish_calibration()
+
+                # ── Track peak RMS seen (for adaptive rms_max) ──
+                if _calib_state["status"] == "done" and _current_rms > _calib_state["peak_rms_seen"]:
+                    _calib_state["peak_rms_seen"] = _current_rms
+                    # Adapt rms_max upward: use 80% of peak as max mapping point
+                    if _current_rms > _bio_config["rms_max"] * 0.9:
+                        _bio_config["rms_max"] = _current_rms * 1.2
+                        _calib_state["auto_rms_max"] = _bio_config["rms_max"]
+
+                # ── Contraction detection (for counting + debounce) ──
+                if _calib_state["status"] == "done":
+                    thresh = _bio_config["rms_threshold"]
+                    global _bio_is_contracting, _bio_contraction_start
+                    if _current_rms > thresh and not _bio_is_contracting:
+                        _bio_is_contracting = True
+                        _bio_contraction_start = time.time()
+                        _calib_state["contraction_count"] += 1
+                    elif _current_rms < thresh * 0.7:  # hysteresis: release at 70% of threshold
+                        _bio_is_contracting = False
+
+                # ── Periodic RMS snapshot for fatigue tracking ──
+                _rms_snapshot_counter += 1
+                if _rms_snapshot_counter >= _RMS_SNAPSHOT_INTERVAL:
+                    _rms_snapshot_counter = 0
+                    _RMS_HISTORY.append(_current_rms)
+                    # Fatigue = declining RMS over recent history
+                    if len(_RMS_HISTORY) >= 20:
+                        recent = list(_RMS_HISTORY)[-20:]
+                        first_half = sum(recent[:10]) / 10
+                        second_half = sum(recent[10:]) / 10
+                        if first_half > 0:
+                            drop = max(0.0, (first_half - second_half) / first_half)
+                            _fatigue_level = min(1.0, drop * 2.0)
+                        else:
+                            _fatigue_level = 0.0
 
                 # 4. LOG RAW & FILTERED DATA TO FILE LIVE
-                if _sample_idx % 10 == 0:  # Log every 10th sample to save disk IO
+                if _sample_idx % 50 == 0:  # Log every 50th sample
                     with open("bioamp_data.log", "a") as f:
-                        f.write(f"Sample: {_sample_idx} | Raw: {raw_float:>8.2f} | Filtered: {out10:>5} | Temp-Voltage: {round(voltage, 4)}mV\n")
+                        f.write(f"S:{_sample_idx} | Raw:{raw_float:>7.1f} | Filt:{out10:>5} | RMS:{_current_rms:>7.2f} | MAV:{_current_mav:>7.2f} | ZCR:{_current_zcr:>6.1f}Hz | WL:{_current_wl:>7.1f}\n")
 
             connection_state["emg"]["last_seen"] = datetime.now().isoformat()
 
@@ -289,6 +408,55 @@ def _emg_reader(port: str, baud: int, stop_event: threading.Event):
         _add_log("ERROR", "EMG serial connection dropped")
 
 
+def _finish_calibration():
+    """Called when calibration sample collection is complete.
+    Computes noise statistics and sets adaptive thresholds from REAL data."""
+    vals = _calib_state["noise_rms_values"]
+    if len(vals) < 5:
+        _calib_state["status"] = "failed"
+        _add_log("ERROR", f"Calibration failed: only {len(vals)} RMS snapshots (need ≥5)")
+        return
+
+    n = len(vals)
+    noise_mean = sum(vals) / n
+    noise_std = math.sqrt(sum((v - noise_mean) ** 2 for v in vals) / max(1, n - 1))
+    noise_floor = noise_mean + 3.0 * noise_std  # 3-sigma threshold
+
+    _calib_state["noise_mean"] = round(noise_mean, 2)
+    _calib_state["noise_std"] = round(noise_std, 2)
+    _calib_state["noise_floor"] = round(noise_floor, 2)
+    _calib_state["status"] = "done"
+    _calib_state["last_calibrated"] = datetime.now().isoformat()
+
+    # Set adaptive thresholds from real noise floor
+    _bio_config["rms_threshold"] = round(noise_floor, 2)
+    # Initial rms_max estimate: 10x the noise floor (will adapt upward on contraction)
+    initial_max = noise_floor * 10.0
+    _bio_config["rms_max"] = round(initial_max, 2)
+    _calib_state["auto_rms_max"] = round(initial_max, 2)
+
+    _add_log("OK", f"✓ Calibration complete — noise floor: {noise_floor:.1f} (μ={noise_mean:.1f}, σ={noise_std:.1f}), threshold set to {noise_floor:.1f}, initial max: {initial_max:.1f}")
+
+
+def _start_calibration():
+    """Begin adaptive calibration: collect baseline for ~3 seconds."""
+    global _calib_sample_count
+    _calib_sample_count = 0
+    _calib_rms_buffer.clear()
+    _calib_state.update({
+        "status": "collecting",
+        "samples_collected": 0,
+        "noise_rms_values": [],
+        "noise_mean": 0.0,
+        "noise_std": 0.0,
+        "noise_floor": 0.0,
+        "peak_rms_seen": 0.0,
+        "contraction_count": 0,
+        "last_calibrated": None,
+    })
+    _add_log("INFO", f"🔬 Calibration started — collecting {_CALIB_DURATION_SAMPLES} samples (~{_CALIB_DURATION_SAMPLES/FS:.1f}s). RELAX your muscles!")
+
+
 def _start_emg_reader(port: str, baud: int):
     global _emg_thread, _emg_stop, _sample_idx
     global _hpf, _notch, _lpf
@@ -297,15 +465,18 @@ def _start_emg_reader(port: str, baud: int):
     _sample_idx = 0
     with _emg_lock:
         EMG_BUFFER.clear()
-        # Initialize filters
-        _hpf = design_hpf(FS, 70.0)
-        _notch = design_notch(FS, 50.0) # 50Hz mains hum (use 60.0 for US)
-        _lpf = design_lpf(FS, 2500.0)
+        # Initialize DSP filters from real filter design
+        _hpf = design_hpf(FS, 70.0)       # HPF: remove DC offset + low-freq motion artifacts
+        _notch = design_notch(FS, 50.0)    # Notch: kill 50Hz mains hum (use 60.0 for US power grid)
+        _lpf = design_lpf(FS, 2500.0)      # LPF: anti-alias, remove HF noise above EMG band
 
     _emg_thread = threading.Thread(
         target=_emg_reader, args=(port, baud, _emg_stop), daemon=True
     )
     _emg_thread.start()
+
+    # Auto-start calibration when EMG connects
+    _start_calibration()
 
 
 def _stop_emg_reader():
@@ -316,6 +487,8 @@ def _stop_emg_reader():
     _emg_thread = None
     with _emg_lock:
         EMG_BUFFER.clear()
+    # Reset calibration state
+    _calib_state["status"] = "idle"
 
 # ─── System log ───────────────────────────────────────────────────────────────
 
@@ -621,14 +794,19 @@ def get_logs():
     return {"logs": logs[-50:]}
 
 
-# ─── Bio-Signal Engine: Auto-Drive Thread & Endpoints ─────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# REAL-TIME CLOSED-LOOP SERVO DRIVE — EMG RMS → Angle → Serial → Arduino
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _map_rms_to_angle(rms: float) -> float:
     """Map RMS value to servo angle using power-curve (gamma) mapping.
-    Reuses the existing bio config thresholds."""
+    Uses adaptive thresholds from calibration — NOT fixed values."""
     cfg = _bio_config
-    # Normalize RMS to 0-1 range
-    normalized = (rms - cfg["rms_threshold"]) / (cfg["rms_max"] - cfg["rms_threshold"])
+    denom = cfg["rms_max"] - cfg["rms_threshold"]
+    if denom <= 0:
+        return cfg["angle_min"]
+    # Normalize RMS to 0-1 range using calibrated thresholds
+    normalized = (rms - cfg["rms_threshold"]) / denom
     normalized = max(0.0, min(1.0, normalized))
     # Apply gamma curve for fine control near threshold
     curved = math.pow(normalized, cfg["gamma"])
@@ -638,52 +816,92 @@ def _map_rms_to_angle(rms: float) -> float:
 
 
 def _bio_auto_drive():
-    """Background thread: when mode is 'biosignal' or 'hybrid',
-    continuously maps EMG RMS → joint6 angle and writes to servo.
-    Runs at ~50 Hz (20 ms cycle). Does NOT interfere with manual/controller."""
+    """Background thread: REAL closed-loop EMG → servo.
+
+    When mode is 'biosignal' or 'hybrid', reads live RMS from the filter
+    pipeline, maps it to an angle via calibrated thresholds, applies EMA
+    smoothing + dead-zone + rate limiting, and writes REAL serial commands
+    to the Arduino ARM.
+    """
     global _bio_smoothed_angle, _bio_drive_active
+    global _bio_last_sent_angle, _bio_last_servo_write
     _bio_drive_active = True
-    _add_log("OK", "Bio-signal auto-drive thread started")
+    _add_log("OK", "Bio-signal auto-drive thread started (real closed-loop pipeline)")
+
+    _last_diag_time = 0.0   # for periodic diagnostic logging
+    _serial_write_count = 0
 
     while _bio_drive_active:
-        time.sleep(0.020)  # 50 Hz
+        time.sleep(0.015)
+
+        # ── Periodic diagnostic log (every 5 seconds) ──
+        now = time.time()
+        if now - _last_diag_time > 5.0:
+            _last_diag_time = now
+            arm_ok = _arm_serial and _arm_serial.is_open
+            _add_log("INFO",
+                f"[BIO-DRIVE] mode={_control_mode} | emg={connection_state['emg']['status']} | "
+                f"arm={'OPEN' if arm_ok else 'CLOSED'} | calib={_calib_state['status']} | "
+                f"rms={_current_rms:.1f} | thresh={_bio_config['rms_threshold']} | "
+                f"angle={_bio_smoothed_angle:.1f}° | writes={_serial_write_count}"
+            )
 
         if _control_mode not in ("biosignal", "hybrid"):
-            continue  # idle — other modes own the joint
+            continue
 
         if connection_state["emg"]["status"] != "connected":
-            continue  # no EMG data
+            continue
+
+        # Don't drive until calibration is done — we need real thresholds
+        if _calib_state["status"] != "done":
+            continue
 
         cfg = _bio_config
         target_joint = cfg["target_joint"]
 
-        # Get current RMS (thread-safe read — float assignment is atomic in CPython)
+        # ── 1. Read current RMS from real filter pipeline ──
         rms = _current_rms
 
-        # Map RMS → raw target angle
+        # ── 2. Map RMS → raw target angle via calibrated gamma curve ──
         raw_angle = _map_rms_to_angle(rms)
 
-        # Apply EMA smoothing
+        # ── 3. Apply EMA smoothing ──
         _bio_smoothed_angle = (
             cfg["ema_alpha"] * raw_angle +
             (1.0 - cfg["ema_alpha"]) * _bio_smoothed_angle
         )
         clamped = max(cfg["angle_min"], min(cfg["angle_max"], round(_bio_smoothed_angle)))
 
-        # Write to servo state (only the target joint)
-        servo_state[target_joint] = float(clamped)
+        # ── 4. Dead-zone ──
+        angle_delta = abs(clamped - _bio_last_sent_angle)
+        if angle_delta < cfg["dead_zone"]:
+            continue
 
-        # Send to Arduino if connected
+        # ── 5. Rate limiting ──
+        elapsed_ms = (now - _bio_last_servo_write) * 1000
+        if elapsed_ms < cfg["servo_rate_limit_ms"]:
+            continue
+
+        # ── 6. Write to servo state and send REAL serial command ──
+        servo_state[target_joint] = float(clamped)
+        _bio_last_sent_angle = clamped
+        _bio_last_servo_write = now
+
         if _arm_serial and _arm_serial.is_open:
             cmd = f"{int(servo_state['base'])},{int(servo_state['shoulder'])},{int(servo_state['elbow'])},{int(servo_state['wrist'])},{int(servo_state['gripper'])},{int(servo_state['auxiliary'])}\n"
             try:
                 _arm_serial.write(cmd.encode('ascii'))
+                _serial_write_count += 1
                 connection_state["arm"]["last_seen"] = datetime.now().isoformat()
-            except Exception:
-                pass  # watchdog will catch dead connections
+            except Exception as e:
+                _add_log("ERROR", f"[BIO-DRIVE] Serial write failed: {e}")
+        else:
+            # ARM not connected — log this clearly
+            if _serial_write_count == 0 and now - _last_diag_time < 0.1:
+                _add_log("WARN", f"[BIO-DRIVE] ARM serial not connected — cannot send angle {clamped}° to {target_joint}")
 
 
-# Start bio-signal auto-drive at import time (idles when mode is manual)
+# Start bio-signal auto-drive at import time (idles until mode = biosignal/hybrid)
 _bio_drive_thread = threading.Thread(target=_bio_auto_drive, daemon=True)
 _bio_drive_thread.start()
 
@@ -692,23 +910,52 @@ _bio_drive_thread.start()
 
 @app.get("/biosignal-state")
 def get_biosignal_state():
-    """Returns real-time bio-signal processing state for the frontend panel."""
+    """Returns REAL-TIME bio-signal processing state from actual sensor data.
+    Every value here comes from the live DSP pipeline — nothing is simulated."""
     cfg = _bio_config
     rms = _current_rms
     raw_angle = _map_rms_to_angle(rms)
+    denom = max(1.0, cfg["rms_max"] - cfg["rms_threshold"])
     return {
+        # ── Live signal features (from real DSP pipeline) ──
         "rms": round(rms, 2),
+        "mav": round(_current_mav, 2),
+        "zcr_hz": round(_current_zcr, 1),      # dominant freq from zero-crossing
+        "waveform_length": round(_current_wl, 1),
         "rms_threshold": cfg["rms_threshold"],
         "rms_max": cfg["rms_max"],
-        "rms_normalized": round(max(0, min(1, (rms - cfg["rms_threshold"]) / max(1, cfg["rms_max"] - cfg["rms_threshold"]))), 3),
+        "rms_normalized": round(max(0, min(1, (rms - cfg["rms_threshold"]) / denom)), 3),
         "fatigue_level": round(_fatigue_level, 3),
         "raw_angle": raw_angle,
         "smoothed_angle": round(_bio_smoothed_angle, 1),
+        "last_sent_angle": round(_bio_last_sent_angle, 1),
+        "is_contracting": _bio_is_contracting,
+        "contraction_count": _calib_state["contraction_count"],
         "target_joint": cfg["target_joint"],
         "mode": _control_mode,
         "emg_connected": connection_state["emg"]["status"] == "connected",
+        "arm_connected": connection_state["arm"]["status"] == "connected",
+        # ── Calibration state ──
+        "calibration": {
+            "status": _calib_state["status"],
+            "progress": round(_calib_state["samples_collected"] / max(1, _calib_state["target_samples"]) * 100, 1),
+            "noise_mean": _calib_state["noise_mean"],
+            "noise_std": _calib_state["noise_std"],
+            "noise_floor": _calib_state["noise_floor"],
+            "peak_rms_seen": round(_calib_state["peak_rms_seen"], 2),
+            "last_calibrated": _calib_state["last_calibrated"],
+        },
         "config": cfg,
     }
+
+
+@app.post("/biosignal-calibrate")
+def trigger_calibration():
+    """Manually trigger a recalibration. User should relax muscles during this."""
+    if connection_state["emg"]["status"] != "connected":
+        return {"status": "error", "message": "EMG sensor not connected"}
+    _start_calibration()
+    return {"status": "ok", "message": "Calibration started — relax muscles for 3 seconds"}
 
 
 @app.get("/mode")
@@ -740,13 +987,18 @@ class BioConfigUpdate(BaseModel):
     ema_alpha: Optional[float] = None
     angle_min: Optional[float] = None
     angle_max: Optional[float] = None
+    dead_zone: Optional[float] = None
+    contraction_hold_ms: Optional[float] = None
+    servo_rate_limit_ms: Optional[float] = None
+    target_joint: Optional[str] = None
 
 
 @app.post("/biosignal-config")
 def update_bio_config(body: BioConfigUpdate):
     """Update bio-signal mapping parameters without restarting."""
     updated = []
-    for field in ["rms_threshold", "rms_max", "gamma", "ema_alpha", "angle_min", "angle_max"]:
+    for field in ["rms_threshold", "rms_max", "gamma", "ema_alpha", "angle_min", "angle_max",
+                  "dead_zone", "contraction_hold_ms", "servo_rate_limit_ms", "target_joint"]:
         val = getattr(body, field, None)
         if val is not None:
             _bio_config[field] = val
@@ -1081,3 +1333,6 @@ async def ros_bridge_ws(websocket: WebSocket):
                 _ros_subscriptions[topic] = [s for s in _ros_subscriptions[topic] if s != websocket]
         _add_log("INFO", f"ROS bridge client disconnected ({len(_ros_clients)} remaining)")
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

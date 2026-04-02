@@ -63,3 +63,8 @@ export const updateBioConfig = (config) =>
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
     }).then((r) => r.json());
+
+export const triggerCalibration = () =>
+    fetch(`${BASE_URL}/biosignal-calibrate`, {
+        method: "POST",
+    }).then((r) => r.json());

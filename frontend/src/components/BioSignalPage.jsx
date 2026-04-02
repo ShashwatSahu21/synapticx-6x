@@ -108,6 +108,32 @@ export default function BioSignalPage() {
     const [mode, setCurrentMode] = useState("manual");
     const [rmsHistory, setRmsHistory] = useState([]);
     const rmsCountRef = useRef(0);
+    // New calibration state
+    const [calibrating, setCalibrating] = useState(false);
+    const [calProgress, setCalProgress] = useState(0);
+
+    const handleCalibration = async () => {
+        try {
+            setCalibrating(true);
+            setCalProgress(0);
+            // Trigger backend calibration
+            await triggerCalibration();
+            // Simulate 3‑second calibration progress
+            const interval = setInterval(() => {
+                setCalProgress((p) => {
+                    if (p >= 100) {
+                        clearInterval(interval);
+                        setCalibrating(false);
+                        return 100;
+                    }
+                    return p + 10;
+                });
+            }, 300);
+        } catch (e) {
+            console.error("Calibration error", e);
+            setCalibrating(false);
+        }
+    };
     const emgPollRef = useRef(null);
     const bioPollRef = useRef(null);
 
@@ -183,6 +209,38 @@ export default function BioSignalPage() {
                         <span className={`w-2 h-2 rounded-full transition-all ${isActive ? "bg-neural-cyan animate-pulse" : "bg-neutral-600"}`} />
                         {isActive ? "EMG Control Active" : "Activate EMG Control"}
                     </button>
+
+                    <button
+                        onClick={handleCalibration}
+                        disabled={calibrating || !sensorConnected}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 border ${
+                            calibrating 
+                                ? "bg-amber-500/10 border-amber-500/40 text-amber-500 animate-pulse" 
+                                : "bg-neural-bg border-neural-border text-neural-muted hover:border-amber-500/40 hover:text-amber-400"
+                        } ${!sensorConnected && "opacity-50 cursor-not-allowed"}`}
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {calibrating ? `Calibrating (${calProgress}%)` : "Auto-Calibrate Baseline"}
+                    </button>
+
+                    <div className="flex items-center gap-3 px-4 py-2 rounded-lg"
+                        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                        <span className="text-[9px] font-mono text-neural-muted uppercase">Hardware</span>
+                        <div className="flex items-center gap-2">
+                            <span className={`w-1.5 h-1.5 rounded-full ${bio?.arm_connected ? "bg-green-400" : "bg-red-500 animate-pulse"}`} />
+                            <span className={`text-[10px] font-mono ${bio?.arm_connected ? "text-neural-text" : "text-red-400"}`}>
+                                {bio?.arm_connected ? "ARM LINKED" : "ARM OFFLINE"}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 px-4 py-2 rounded-lg"
+                        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                        <span className="text-[9px] font-mono text-neural-muted uppercase">Target</span>
+                        <span className="text-[10px] font-mono text-neural-cyan font-bold">{bio?.target_joint?.toUpperCase() || "ELBOW"}</span>
+                    </div>
 
                     <div className="flex items-center gap-3 px-4 py-2 rounded-lg"
                         style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
