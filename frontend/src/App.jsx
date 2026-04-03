@@ -6,9 +6,11 @@ import BioSignalPage from "./components/BioSignalPage";
 import SystemLogs from "./components/SystemLogs";
 import RoboticArm3D from "./components/RoboticArm3D";
 import ServoControl from "./components/ServoControl";
+import TeachReplayPage from "./components/TeachReplayPage";
 
 const NAV_ITEMS = [
   { id: "Dashboard",   label: "Dashboard",  icon: "⬡" },
+  { id: "Mission",     label: "Mission",    icon: "◉" },
   { id: "Bio-Signal",  label: "Bio-Signal", icon: "◉" },
   { id: "Controller",  label: "Controller", icon: "◎" },
   { id: "Config",      label: "Config",     icon: "⚙" },
@@ -106,6 +108,12 @@ export default function App() {
             <div className="w-full">
               <SystemLogs height="220px" />
             </div>
+          </div>
+        )}
+
+        {page === "Mission" && (
+          <div className="page-enter h-[calc(100vh-180px)]">
+            <TeachReplayPage />
           </div>
         )}
 
