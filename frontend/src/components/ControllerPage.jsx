@@ -100,6 +100,7 @@ export default function ControllerPage() {
     const [pollRate, setPollRate] = useState(0);
     const [lastInputTime, setLastInputTime] = useState(null);
     const [liveSync, setLiveSync] = useState(true);
+    const [selectedMission, setSelectedMission] = useState(null);
     
     const lastSentAngles = useRef({});
     const smoothedAnglesRef = useRef({ base: 90, shoulder: 90, elbow: 90, wrist: 90, auxiliary: 90, gripper: 90 });
@@ -107,6 +108,25 @@ export default function ControllerPage() {
     const rafRef = useRef(null);
     const lastFrameTime = useRef(performance.now());
     const frameCount = useRef(0);
+
+    const comboTriggered = useRef(false);
+    useEffect(() => {
+        const fetchMission = async () => {
+            try {
+                const res = await api.getSelectedSequence();
+                if (res.status === "ok" && res.id) {
+                    const list = await api.fetchSequences();
+                    const seq = list.sequences.find(s => s.id === res.id);
+                    setSelectedMission(seq ? seq.name : "Unknown");
+                } else {
+                    setSelectedMission(null);
+                }
+            } catch (e) {}
+        };
+        fetchMission();
+        const id = setInterval(fetchMission, 2000);
+        return () => clearInterval(id);
+    }, []);
 
     const poll = useCallback(() => {
         const gps = navigator.getGamepads();
@@ -116,6 +136,20 @@ export default function ControllerPage() {
         if (found) {
             const newAxes = Array.from(found.axes);
             const newButtons = found.buttons.map((b) => ({ pressed: b.pressed, value: b.value }));
+            
+            // ── L2 + R2 Combo Trigger (Capture Waypoint) ──
+            const l2 = newButtons[6]?.pressed;
+            const r2 = newButtons[7]?.pressed;
+            if (l2 && r2) {
+                if (!comboTriggered.current) {
+                    console.log("🎮 CAPTURE TRIGGER: L2 + R2 DETECTED");
+                    api.captureWaypoint().catch(console.error);
+                    comboTriggered.current = true;
+                }
+            } else {
+                comboTriggered.current = false;
+            }
+
             const anyInput = newAxes.some((a) => Math.abs(a) > DEAD_ZONE) || newButtons.some((b) => b.pressed);
             
             if (anyInput) setLastInputTime(Date.now());
@@ -138,7 +172,7 @@ export default function ControllerPage() {
         }
 
         rafRef.current = requestAnimationFrame(poll);
-    }, []);
+    }, [pollRate, lastInputTime]);
 
     useEffect(() => {
         rafRef.current = requestAnimationFrame(poll);
@@ -226,6 +260,14 @@ export default function ControllerPage() {
                         </div>
                     </div>
                 )}
+
+                <div className="flex flex-col items-center gap-1">
+                    <p className="text-[10px] uppercase tracking-widest text-neural-muted font-bold">Record Target</p>
+                    <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 transition-all ${selectedMission ? "border-neural-cyan/30 bg-neural-cyan/5 text-neural-cyan" : "border-white/5 bg-white/5 text-white/20"}`}>
+                        <span className="text-[9px]">⦿</span>
+                        <span className="text-[10px] font-bold tracking-tight truncate max-w-[120px]">{selectedMission || "No Active Mission"}</span>
+                    </div>
+                </div>
 
                 <div className="flex gap-6">
                     {[{ label: "POLL", val: pollRate+"Hz" }, { label: "DELAY", val: lastInputTime ? "0ms" : "—" }].map(s => (

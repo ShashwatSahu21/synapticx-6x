@@ -60,8 +60,13 @@ export default function TeachReplayPage() {
     }, [loadSequences, updatePlaybackState]);
 
     useEffect(() => {
-        if (activeSeqId) loadActiveSequence(activeSeqId);
-        else setActiveSeq(null);
+        if (activeSeqId) {
+            loadActiveSequence(activeSeqId);
+            api.setSelectedSequence(activeSeqId).catch(console.error);
+        } else {
+            setActiveSeq(null);
+            api.setSelectedSequence(null).catch(console.error);
+        }
     }, [activeSeqId, loadActiveSequence]);
 
     // ── ACTIONS ──

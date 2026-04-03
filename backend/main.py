@@ -1133,6 +1133,7 @@ _playback_state = {
     "current_angles": {},
     "status": "idle",          # "idle" | "playing" | "paused" | "finished"
 }
+_selected_sequence_id: Optional[str] = None
 _playback_stop = threading.Event()
 _playback_thread: Optional[threading.Thread] = None
 _playback_lock = threading.Lock()
@@ -1183,6 +1184,22 @@ def list_sequences():
             "total_duration_ms": sum(wp.get("delay_ms", 1000) for wp in seq.get("waypoints", [])),
         })
     return {"status": "ok", "sequences": summaries, "count": len(summaries)}
+
+
+@app.get("/sequences/selected")
+def get_selected_sequence():
+    return {"status": "ok", "id": _selected_sequence_id}
+
+
+@app.post("/sequences/selected/{seq_id}")
+def set_selected_sequence(seq_id: str):
+    global _selected_sequence_id
+    if seq_id not in _sequences and seq_id != "none":
+        return {"status": "error", "message": "Sequence not found"}
+    _selected_sequence_id = None if seq_id == "none" else seq_id
+    name = _sequences[_selected_sequence_id]["name"] if _selected_sequence_id else "None"
+    _add_log("INFO", f"Active mission set to: {name}")
+    return {"status": "ok", "selected": _selected_sequence_id}
 
 
 class CreateSequenceRequest(BaseModel):

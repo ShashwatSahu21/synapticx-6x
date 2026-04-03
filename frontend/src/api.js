@@ -71,6 +71,15 @@ export const triggerCalibration = () =>
 
 // ── Teach & Replay — Sequence Management ─────────────────────────────────────
 
+export const setSelectedSequence = (seqId) =>
+    fetch(`${BASE_URL}/sequences/selected/${seqId || "none"}`, { method: "POST" }).then((r) => r.json());
+
+export const getSelectedSequence = () =>
+    fetch(`${BASE_URL}/sequences/selected`).then((r) => r.json());
+
+export const captureWaypoint = () =>
+    fetch(`${BASE_URL}/sequences/capture`, { method: "POST" }).then((r) => r.json());
+
 export const fetchSequences = () =>
     fetch(`${BASE_URL}/sequences`).then((r) => r.json());
 
