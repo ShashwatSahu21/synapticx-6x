@@ -110,15 +110,20 @@ export default function ControllerPage() {
     const frameCount = useRef(0);
 
     const comboTriggered = useRef(false);
+    const startTriggered = useRef(false);
+    const currentSeqId = useRef(null);
+
     useEffect(() => {
         const fetchMission = async () => {
             try {
                 const res = await api.getSelectedSequence();
                 if (res.status === "ok" && res.id) {
+                    currentSeqId.current = res.id;
                     const list = await api.fetchSequences();
                     const seq = list.sequences.find(s => s.id === res.id);
                     setSelectedMission(seq ? seq.name : "Unknown");
                 } else {
+                    currentSeqId.current = null;
                     setSelectedMission(null);
                 }
             } catch (e) {}
@@ -148,6 +153,18 @@ export default function ControllerPage() {
                 }
             } else {
                 comboTriggered.current = false;
+            }
+
+            // ── Start Button (Execute Mission) ──
+            const startBtn = newButtons[9]?.pressed;
+            if (startBtn) {
+                if (!startTriggered.current && currentSeqId.current) {
+                    console.log("🎮 EXECUTE TRIGGER: START BUTTON DETECTED");
+                    api.playSequence(currentSeqId.current).catch(console.error);
+                    startTriggered.current = true;
+                }
+            } else {
+                startTriggered.current = false;
             }
 
             const anyInput = newAxes.some((a) => Math.abs(a) > DEAD_ZONE) || newButtons.some((b) => b.pressed);
