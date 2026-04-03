@@ -1,0 +1,76 @@
+{
+  "733fe63c": {
+    "name": "Test Scripted Sequence",
+    "created": "2026-04-04T03:27:24.105434",
+    "waypoints": [],
+    "loop": false,
+    "speed": 1.0
+  },
+  "ff63ae39": {
+    "name": "Mission 2",
+    "created": "2026-04-04T03:43:57.480072",
+    "waypoints": [],
+    "loop": false,
+    "speed": 1.0
+  },
+  "f61b8b0c": {
+    "name": "Mission 3",
+    "created": "2026-04-04T03:44:36.839419",
+    "waypoints": [
+      {
+        "label": "Point 1",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 0.0,
+          "elbow": 168.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 2",
+        "angles": {
+          "base": 102.0,
+          "shoulder": 0.0,
+          "elbow": 90.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 3",
+        "angles": {
+          "base": 180.0,
+          "shoulder": 0.0,
+          "elbow": 175.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 4",
+        "angles": {
+          "base": 0.0,
+          "shoulder": 0.0,
+          "elbow": 177.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  }
+}
