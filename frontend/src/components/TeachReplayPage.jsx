@@ -113,6 +113,19 @@ export default function TeachReplayPage() {
         }
     };
 
+    const handleDeleteSequence = async (id, name) => {
+        if (!window.confirm(`Are you sure you want to delete the mission: "${name}"?`)) return;
+        try {
+            const res = await api.deleteSequence(id);
+            if (res.status === "ok") {
+                if (activeSeqId === id) setActiveSeqId(null);
+                await loadSequences();
+            }
+        } catch (err) {
+            setError("Failed to remove mission archive");
+        }
+    };
+
     return (
         <div className="flex flex-col gap-4 h-full relative overflow-hidden">
             <div className="flex gap-4 min-h-[600px] flex-1">
@@ -164,7 +177,15 @@ export default function TeachReplayPage() {
                                         : "bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/8"
                                     }`}
                                 >
-                                    <h3 className="text-xs font-bold text-white mb-2">{seq.name}</h3>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <h3 className="text-xs font-bold text-white group-hover:text-neural-cyan transition-colors truncate">{seq.name}</h3>
+                                        <div 
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteSequence(seq.id, seq.name); }}
+                                            className="opacity-0 group-hover:opacity-100 p-1 -m-1 text-red-500/40 hover:text-red-500 transition-all text-[14px]"
+                                        >
+                                            ✕
+                                        </div>
+                                    </div>
                                     <div className="flex items-center gap-3">
                                         <div className="flex items-center gap-1.5">
                                             <span className="w-1.5 h-1.5 rounded-full bg-neural-cyan/40" />
@@ -176,7 +197,6 @@ export default function TeachReplayPage() {
                                             {(seq.total_duration_ms / 1000).toFixed(1)}s Cycle
                                         </span>
                                     </div>
-                                    <span className="absolute top-4 right-4 text-[10px] opacity-0 group-hover:opacity-40 transition-all">❯</span>
                                 </button>
                             ))
                         )}
