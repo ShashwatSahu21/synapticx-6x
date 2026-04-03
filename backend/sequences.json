@@ -68,6 +68,19 @@
         },
         "delay_ms": 1000,
         "transition_ms": 800
+      },
+      {
+        "label": "Point 5",
+        "angles": {
+          "base": 84.0,
+          "shoulder": 88.0,
+          "elbow": 178.0,
+          "wrist": 88.0,
+          "gripper": 71.0,
+          "auxiliary": 29.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
       }
     ],
     "loop": false,
