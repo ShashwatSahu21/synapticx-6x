@@ -1096,6 +1096,506 @@ def set_simulation(body: SimulationUpdate):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# TEACH & REPLAY ENGINE — Record, Save, and Replay Servo Sequences
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Workflow:
+#   1. User positions the arm manually (sliders / controller / bio-signal)
+#   2. Press "Record Waypoint" → snapshot of all 6 servo angles is stored
+#   3. Repeat for each position in the task (pick, lift, move, place, etc.)
+#   4. Save as a named sequence
+#   5. Press "Play" → arm smoothly interpolates through all waypoints
+#      with REAL serial commands sent to Arduino at ~50 Hz
+#   6. Sequences persist to disk as JSON for reuse across sessions
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import uuid as _uuid
+
+_SEQUENCES_PATH = Path(__file__).parent / "sequences.json"
+
+# In-memory sequence store: { id: { name, created, waypoints[], loop, speed } }
+_sequences: Dict[str, dict] = {}
+
+# Playback state
+_playback_state = {
+    "active": False,
+    "sequence_id": None,
+    "sequence_name": None,
+    "current_waypoint_idx": 0,
+    "total_waypoints": 0,
+    "progress": 0.0,           # 0.0–1.0 overall
+    "interpolation": 0.0,      # 0.0–1.0 between current pair
+    "loop": False,
+    "loop_count": 0,
+    "speed": 1.0,
+    "paused": False,
+    "current_angles": {},
+    "status": "idle",          # "idle" | "playing" | "paused" | "finished"
+}
+_playback_stop = threading.Event()
+_playback_thread: Optional[threading.Thread] = None
+_playback_lock = threading.Lock()
+
+
+def _load_sequences():
+    """Load sequences from disk."""
+    global _sequences
+    try:
+        if _SEQUENCES_PATH.exists():
+            with open(_SEQUENCES_PATH, "r") as f:
+                _sequences = json.load(f)
+            _add_log("OK", f"Loaded {len(_sequences)} saved sequence(s)")
+        else:
+            _sequences = {}
+    except Exception as e:
+        _add_log("ERROR", f"Failed to load sequences: {e}")
+        _sequences = {}
+
+
+def _save_sequences():
+    """Persist sequences to disk."""
+    try:
+        with open(_SEQUENCES_PATH, "w") as f:
+            json.dump(_sequences, f, indent=2)
+    except Exception as e:
+        _add_log("ERROR", f"Failed to save sequences: {e}")
+
+
+# Load at startup
+_load_sequences()
+
+
+# ─── Sequence CRUD Endpoints ──────────────────────────────────────────────────
+
+@app.get("/sequences")
+def list_sequences():
+    """List all saved sequences with summary info."""
+    summaries = []
+    for sid, seq in _sequences.items():
+        summaries.append({
+            "id": sid,
+            "name": seq.get("name", "Untitled"),
+            "waypoint_count": len(seq.get("waypoints", [])),
+            "created": seq.get("created"),
+            "loop": seq.get("loop", False),
+            "speed": seq.get("speed", 1.0),
+            "total_duration_ms": sum(wp.get("delay_ms", 1000) for wp in seq.get("waypoints", [])),
+        })
+    return {"status": "ok", "sequences": summaries, "count": len(summaries)}
+
+
+class CreateSequenceRequest(BaseModel):
+    name: str
+    loop: Optional[bool] = False
+    speed: Optional[float] = 1.0
+
+
+@app.post("/sequences")
+def create_sequence(body: CreateSequenceRequest):
+    """Create a new empty sequence."""
+    sid = str(_uuid.uuid4())[:8]
+    _sequences[sid] = {
+        "name": body.name,
+        "created": datetime.now().isoformat(),
+        "waypoints": [],
+        "loop": body.loop,
+        "speed": body.speed,
+    }
+    _save_sequences()
+    _add_log("OK", f"Sequence created: '{body.name}' (id={sid})")
+    return {"status": "ok", "id": sid, "sequence": _sequences[sid]}
+
+
+@app.get("/sequences/{seq_id}")
+def get_sequence(seq_id: str):
+    """Get a specific sequence with all waypoints."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    return {"status": "ok", "id": seq_id, "sequence": _sequences[seq_id]}
+
+
+class UpdateSequenceRequest(BaseModel):
+    name: Optional[str] = None
+    loop: Optional[bool] = None
+    speed: Optional[float] = None
+
+
+@app.put("/sequences/{seq_id}")
+def update_sequence(seq_id: str, body: UpdateSequenceRequest):
+    """Update sequence metadata."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    seq = _sequences[seq_id]
+    if body.name is not None:
+        seq["name"] = body.name
+    if body.loop is not None:
+        seq["loop"] = body.loop
+    if body.speed is not None:
+        seq["speed"] = body.speed
+    _save_sequences()
+    return {"status": "ok", "id": seq_id, "sequence": seq}
+
+
+@app.delete("/sequences/{seq_id}")
+def delete_sequence(seq_id: str):
+    """Delete a sequence."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    name = _sequences[seq_id].get("name", "Untitled")
+    del _sequences[seq_id]
+    _save_sequences()
+    _add_log("WARN", f"Sequence deleted: '{name}' (id={seq_id})")
+    return {"status": "ok", "deleted": seq_id}
+
+
+# ─── Waypoint Management ─────────────────────────────────────────────────────
+
+class AddWaypointRequest(BaseModel):
+    label: Optional[str] = None
+    angles: Optional[Dict[str, float]] = None  # if None, captures current servo_state
+    delay_ms: Optional[int] = 1000             # pause at this waypoint before moving on
+    transition_ms: Optional[int] = 800         # time to interpolate TO this waypoint
+
+
+@app.post("/sequences/{seq_id}/waypoints")
+def add_waypoint(seq_id: str, body: AddWaypointRequest):
+    """Add a waypoint to a sequence. If no angles provided, snapshots the current servo state."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+
+    # Snapshot current state if no explicit angles given
+    snap = body.angles if body.angles else dict(servo_state)
+    idx = len(_sequences[seq_id]["waypoints"])
+    wp = {
+        "label": body.label or f"Point {idx + 1}",
+        "angles": snap,
+        "delay_ms": body.delay_ms,
+        "transition_ms": body.transition_ms,
+    }
+    _sequences[seq_id]["waypoints"].append(wp)
+    _save_sequences()
+    _add_log("OK", f"Waypoint '{wp['label']}' added to sequence '{_sequences[seq_id]['name']}' — "
+             f"[{', '.join(f'{k}:{int(v)}°' for k, v in snap.items())}]")
+    return {"status": "ok", "waypoint_index": idx, "waypoint": wp,
+            "total_waypoints": len(_sequences[seq_id]["waypoints"])}
+
+
+class UpdateWaypointRequest(BaseModel):
+    label: Optional[str] = None
+    angles: Optional[Dict[str, float]] = None
+    delay_ms: Optional[int] = None
+    transition_ms: Optional[int] = None
+
+
+@app.put("/sequences/{seq_id}/waypoints/{wp_idx}")
+def update_waypoint(seq_id: str, wp_idx: int, body: UpdateWaypointRequest):
+    """Update a specific waypoint."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    wps = _sequences[seq_id]["waypoints"]
+    if wp_idx < 0 or wp_idx >= len(wps):
+        return {"status": "error", "message": f"Waypoint index {wp_idx} out of range"}
+    wp = wps[wp_idx]
+    if body.label is not None:
+        wp["label"] = body.label
+    if body.angles is not None:
+        wp["angles"] = body.angles
+    if body.delay_ms is not None:
+        wp["delay_ms"] = body.delay_ms
+    if body.transition_ms is not None:
+        wp["transition_ms"] = body.transition_ms
+    _save_sequences()
+    return {"status": "ok", "waypoint": wp}
+
+
+@app.delete("/sequences/{seq_id}/waypoints/{wp_idx}")
+def delete_waypoint(seq_id: str, wp_idx: int):
+    """Remove a waypoint from a sequence."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    wps = _sequences[seq_id]["waypoints"]
+    if wp_idx < 0 or wp_idx >= len(wps):
+        return {"status": "error", "message": f"Waypoint index {wp_idx} out of range"}
+    removed = wps.pop(wp_idx)
+    _save_sequences()
+    _add_log("INFO", f"Waypoint '{removed['label']}' removed from sequence")
+    return {"status": "ok", "removed": removed, "remaining": len(wps)}
+
+
+@app.post("/sequences/{seq_id}/waypoints/reorder")
+def reorder_waypoints(seq_id: str, order: List[int]):
+    """Reorder waypoints by index list, e.g. [2, 0, 1, 3]."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    wps = _sequences[seq_id]["waypoints"]
+    if sorted(order) != list(range(len(wps))):
+        return {"status": "error", "message": "Invalid order — must include all indices exactly once"}
+    _sequences[seq_id]["waypoints"] = [wps[i] for i in order]
+    _save_sequences()
+    return {"status": "ok", "new_order": order}
+
+
+# ─── Quick Snapshot Endpoint ──────────────────────────────────────────────────
+
+@app.post("/sequences/snapshot")
+def take_snapshot():
+    """Return the current servo angles as a snapshot (does NOT add to any sequence)."""
+    return {"status": "ok", "angles": dict(servo_state), "timestamp": datetime.now().isoformat()}
+
+
+# ─── Playback Engine ─────────────────────────────────────────────────────────
+
+def _interpolate_angles(a: dict, b: dict, t: float) -> dict:
+    """Linear interpolation between two angle dicts. t in [0, 1]."""
+    result = {}
+    for key in a:
+        v0 = a.get(key, 90.0)
+        v1 = b.get(key, 90.0)
+        # Ease-in-out cubic for smoother motion
+        t_smooth = t * t * (3.0 - 2.0 * t)
+        result[key] = v0 + (v1 - v0) * t_smooth
+    return result
+
+
+def _send_angles_to_arm(angles: dict):
+    """Write interpolated angles to both servo_state and serial port."""
+    global _arm_serial
+    for key in servo_state:
+        if key in angles:
+            servo_state[key] = round(max(0, min(180, angles[key])), 1)
+
+    if _arm_serial and _arm_serial.is_open:
+        cmd = (f"{int(servo_state['base'])},"
+               f"{int(servo_state['shoulder'])},"
+               f"{int(servo_state['elbow'])},"
+               f"{int(servo_state['wrist'])},"
+               f"{int(servo_state['gripper'])},"
+               f"{int(servo_state['auxiliary'])}\n")
+        try:
+            _arm_serial.write(cmd.encode('ascii'))
+            connection_state["arm"]["last_seen"] = datetime.now().isoformat()
+        except Exception as e:
+            _add_log("ERROR", f"[PLAYBACK] Serial write failed: {e}")
+
+
+def _playback_worker(seq_id: str):
+    """Background thread: plays a sequence with smooth interpolation.
+    Sends REAL servo commands at ~50 Hz during transitions."""
+    global _playback_state
+
+    seq = _sequences.get(seq_id)
+    if not seq:
+        _playback_state["status"] = "idle"
+        _playback_state["active"] = False
+        return
+
+    wps = seq["waypoints"]
+    if len(wps) < 1:
+        _playback_state["status"] = "idle"
+        _playback_state["active"] = False
+        _add_log("WARN", "Sequence has no waypoints — nothing to play")
+        return
+
+    speed = seq.get("speed", 1.0) * _playback_state.get("speed", 1.0)
+    loop = _playback_state.get("loop", seq.get("loop", False))
+    loop_count = 0
+
+    _add_log("OK", f"▶ Playing sequence '{seq['name']}' — {len(wps)} waypoints, speed={speed}x, loop={'ON' if loop else 'OFF'}")
+
+    # Move to first waypoint before starting
+    first_angles = wps[0]["angles"]
+    _send_angles_to_arm(first_angles)
+    _playback_state.update({
+        "current_waypoint_idx": 0,
+        "current_angles": dict(first_angles),
+        "interpolation": 0.0,
+    })
+
+    while not _playback_stop.is_set():
+        for i in range(len(wps)):
+            if _playback_stop.is_set():
+                break
+
+            # Handle pause
+            while _playback_state.get("paused") and not _playback_stop.is_set():
+                _playback_state["status"] = "paused"
+                time.sleep(0.05)
+            if _playback_stop.is_set():
+                break
+            _playback_state["status"] = "playing"
+
+            wp = wps[i]
+            target_angles = wp["angles"]
+            transition_ms = wp.get("transition_ms", 800) / max(0.1, speed)
+            delay_ms = wp.get("delay_ms", 1000) / max(0.1, speed)
+
+            # Get starting angles (current servo state)
+            start_angles = dict(servo_state)
+
+            _playback_state.update({
+                "current_waypoint_idx": i,
+                "total_waypoints": len(wps),
+            })
+
+            # ── Interpolate to this waypoint ──
+            if transition_ms > 0:
+                steps = max(1, int(transition_ms / 20))  # ~50 Hz
+                for step in range(steps + 1):
+                    if _playback_stop.is_set():
+                        break
+                    while _playback_state.get("paused") and not _playback_stop.is_set():
+                        time.sleep(0.05)
+                    if _playback_stop.is_set():
+                        break
+
+                    t = step / max(1, steps)
+                    interp = _interpolate_angles(start_angles, target_angles, t)
+                    _send_angles_to_arm(interp)
+
+                    # Update state for frontend
+                    overall = (i + t) / len(wps)
+                    _playback_state.update({
+                        "interpolation": round(t, 3),
+                        "progress": round(overall, 3),
+                        "current_angles": {k: round(v, 1) for k, v in interp.items()},
+                    })
+                    time.sleep(0.02)  # 50 Hz
+
+            # Snap to exact target
+            _send_angles_to_arm(target_angles)
+            _playback_state["current_angles"] = dict(target_angles)
+            _playback_state["interpolation"] = 1.0
+            _playback_state["progress"] = round((i + 1) / len(wps), 3)
+
+            # ── Hold at waypoint ──
+            if delay_ms > 0 and not _playback_stop.is_set():
+                hold_steps = max(1, int(delay_ms / 50))
+                for _ in range(hold_steps):
+                    if _playback_stop.is_set():
+                        break
+                    while _playback_state.get("paused") and not _playback_stop.is_set():
+                        time.sleep(0.05)
+                    time.sleep(0.05)
+
+        if _playback_stop.is_set():
+            break
+
+        loop_count += 1
+        _playback_state["loop_count"] = loop_count
+
+        if not loop:
+            break
+        else:
+            _add_log("INFO", f"↻ Sequence loop #{loop_count + 1}")
+
+    _playback_state.update({
+        "active": False,
+        "status": "finished" if not _playback_stop.is_set() else "idle",
+        "progress": 1.0 if not _playback_stop.is_set() else _playback_state["progress"],
+    })
+    _add_log("OK", f"■ Sequence playback {'completed' if not _playback_stop.is_set() else 'stopped'} "
+             f"(loops={loop_count})")
+
+
+class PlayRequest(BaseModel):
+    loop: Optional[bool] = None
+    speed: Optional[float] = 1.0
+
+
+@app.post("/sequences/{seq_id}/play")
+def play_sequence(seq_id: str, body: PlayRequest):
+    """Start playing a sequence. Arm interpolates through all waypoints with real serial."""
+    global _playback_thread
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    seq = _sequences[seq_id]
+    if len(seq.get("waypoints", [])) < 1:
+        return {"status": "error", "message": "Sequence has no waypoints"}
+
+    # Stop any running playback first
+    _stop_playback()
+
+    _playback_stop.clear()
+    use_loop = body.loop if body.loop is not None else seq.get("loop", False)
+    _playback_state.update({
+        "active": True,
+        "sequence_id": seq_id,
+        "sequence_name": seq["name"],
+        "current_waypoint_idx": 0,
+        "total_waypoints": len(seq["waypoints"]),
+        "progress": 0.0,
+        "interpolation": 0.0,
+        "loop": use_loop,
+        "loop_count": 0,
+        "speed": body.speed or 1.0,
+        "paused": False,
+        "status": "playing",
+        "current_angles": dict(servo_state),
+    })
+
+    _playback_thread = threading.Thread(target=_playback_worker, args=(seq_id,), daemon=True)
+    _playback_thread.start()
+
+    return {"status": "ok", "message": f"Playing '{seq['name']}'", "playback": _playback_state}
+
+
+@app.post("/sequences/stop")
+def stop_playback_endpoint():
+    """Stop any running playback."""
+    _stop_playback()
+    return {"status": "ok", "playback": _playback_state}
+
+
+@app.post("/sequences/pause")
+def pause_playback():
+    """Toggle pause on running playback."""
+    if not _playback_state["active"]:
+        return {"status": "error", "message": "No playback running"}
+    _playback_state["paused"] = not _playback_state["paused"]
+    state_str = "paused" if _playback_state["paused"] else "resumed"
+    _add_log("INFO", f"Playback {state_str}")
+    return {"status": "ok", "paused": _playback_state["paused"]}
+
+
+@app.get("/sequences/playback")
+def get_playback_state():
+    """Get current playback state for frontend animation sync."""
+    return {"status": "ok", "playback": _playback_state}
+
+
+def _stop_playback():
+    """Stop the playback thread cleanly."""
+    global _playback_thread
+    _playback_stop.set()
+    if _playback_thread and _playback_thread.is_alive():
+        _playback_thread.join(timeout=2)
+    _playback_thread = None
+    _playback_state.update({
+        "active": False,
+        "paused": False,
+        "status": "idle",
+    })
+
+
+# ─── Sequence Duplication / Import-Export ──────────────────────────────────────
+
+@app.post("/sequences/{seq_id}/duplicate")
+def duplicate_sequence(seq_id: str):
+    """Duplicate an existing sequence."""
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Sequence '{seq_id}' not found"}
+    new_id = str(_uuid.uuid4())[:8]
+    import copy
+    _sequences[new_id] = copy.deepcopy(_sequences[seq_id])
+    _sequences[new_id]["name"] = _sequences[seq_id]["name"] + " (copy)"
+    _sequences[new_id]["created"] = datetime.now().isoformat()
+    _save_sequences()
+    _add_log("OK", f"Sequence duplicated: '{_sequences[new_id]['name']}' (id={new_id})")
+    return {"status": "ok", "id": new_id, "sequence": _sequences[new_id]}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # FORWARD KINEMATICS ENGINE
 # ═══════════════════════════════════════════════════════════════════════════════
 
