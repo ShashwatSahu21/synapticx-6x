@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+*.env
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Secrets
+.env
+.env.local
+.env.*
+code red/xarm/xArm.exe
+
+*.mp4
+*.exe
+
+*.mp4
+*.exe
+*.log
+bioamp_data.log
+node_modules/
+frontend/node_modules/
+.antigravity/
+
+*.mp4
+*.exe
+*.log
+bioamp_data.log
+node_modules/
+**/java/
+**/modules
+code red/xarm/
+.antigravity/
