@@ -85,5 +85,65 @@
     ],
     "loop": false,
     "speed": 1.0
+  },
+  "3db07684": {
+    "name": "square",
+    "created": "2026-04-13T01:23:58.910163",
+    "waypoints": [
+      {
+        "label": "Point 1",
+        "angles": {
+          "base": 92.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 52.0,
+          "gripper": 106.0,
+          "auxiliary": 92.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 2",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 88.0,
+          "gripper": 90.0,
+          "auxiliary": 67.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 3",
+        "angles": {
+          "base": 88.0,
+          "shoulder": 3.0,
+          "elbow": 89.0,
+          "wrist": 88.0,
+          "gripper": 90.0,
+          "auxiliary": 93.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 4",
+        "angles": {
+          "base": 88.0,
+          "shoulder": 3.0,
+          "elbow": 89.0,
+          "wrist": 88.0,
+          "gripper": 90.0,
+          "auxiliary": 93.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
   }
 }
