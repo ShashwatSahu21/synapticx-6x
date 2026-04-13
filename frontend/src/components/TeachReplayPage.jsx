@@ -206,6 +206,54 @@ export default function TeachReplayPage() {
                             ))
                         )}
                     </div>
+
+                    {/* ── QUICK GENERATORS ── */}
+                    <div className="p-4 border-t border-white/10">
+                        <p className="text-[9px] uppercase tracking-[0.2em] text-neural-muted font-bold mb-3">Quick Generate</p>
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                            {["Square", "Triangle", "Rectangle"].map(shape => (
+                                <button 
+                                    key={shape}
+                                    onClick={async () => {
+                                        try {
+                                            const res = await api.generateShape(shape.toLowerCase());
+                                            if (res.status === "ok") {
+                                                await loadSequences();
+                                                setActiveSeqId(res.id);
+                                            }
+                                        } catch (err) { setError(`Failed to generate ${shape}`); }
+                                    }}
+                                    className="text-[9px] py-2 px-2 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:border-neural-cyan/30 hover:text-neural-cyan hover:bg-neural-cyan/5 transition-all font-bold uppercase tracking-wider"
+                                >✏️ {shape}</button>
+                            ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button 
+                                onClick={async () => {
+                                    try {
+                                        const res = await api.generateTask("pick_place");
+                                        if (res.status === "ok") {
+                                            await loadSequences();
+                                            setActiveSeqId(res.id);
+                                        }
+                                    } catch (err) { setError("Failed to generate Pick & Place"); }
+                                }}
+                                className="text-[9px] py-2 px-2 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:border-[#34d399]/30 hover:text-[#34d399] hover:bg-[#34d399]/5 transition-all font-bold uppercase tracking-wider"
+                            >📦 Pick & Place</button>
+                            <button 
+                                onClick={async () => {
+                                    try {
+                                        const res = await api.generateTask("stack", { stack_count: 2 });
+                                        if (res.status === "ok") {
+                                            await loadSequences();
+                                            setActiveSeqId(res.id);
+                                        }
+                                    } catch (err) { setError("Failed to generate Stacking"); }
+                                }}
+                                className="text-[9px] py-2 px-2 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:border-[#f59e0b]/30 hover:text-[#f59e0b] hover:bg-[#f59e0b]/5 transition-all font-bold uppercase tracking-wider"
+                            >🧱 Stack 2 Cubes</button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* ── CENTER: VISUALIZATION ── */}

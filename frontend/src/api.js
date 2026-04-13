@@ -145,3 +145,19 @@ export const pausePlayback = () =>
 
 export const fetchPlaybackState = () =>
     fetch(`${BASE_URL}/sequences/playback`).then((r) => r.json());
+
+// ── Shape & Task Generation ──────────────────────────────────────────────────
+
+export const generateShape = (shape, options = {}) =>
+    fetch(`${BASE_URL}/sequences/generate-shape`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shape, ...options }),
+    }).then((r) => r.json());
+
+export const generateTask = (task, options = {}) =>
+    fetch(`${BASE_URL}/sequences/generate-task`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task, ...options }),
+    }).then((r) => r.json());

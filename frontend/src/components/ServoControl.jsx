@@ -2,12 +2,12 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { updateServos, fetchSystemStatus } from "../api";
 
 const SERVOS = [
-    { id: "base",      label: "Base Rotation",   min: 0, max: 180, color: "#00d4ff" },
-    { id: "shoulder",  label: "Shoulder Pitch",  min: 0, max: 180, color: "#a78bfa" },
-    { id: "elbow",     label: "Elbow Flex",      min: 0, max: 180, color: "#f59e0b" },
-    { id: "wrist",     label: "Wrist Pitch",     min: 0, max: 180, color: "#34d399" },
-    { id: "gripper",   label: "Wrist Roll",      min: 0, max: 180, color: "#fb923c" },
-    { id: "auxiliary", label: "Gripper",         min: 0, max: 180, color: "#f472b6" },
+    { id: "base",      label: "Base Rotation",   min: 0, max: 270, color: "#00d4ff" },
+    { id: "shoulder",  label: "Shoulder Pitch",  min: 0, max: 270, color: "#a78bfa" },
+    { id: "elbow",     label: "Elbow Flex",      min: 0, max: 270, color: "#f59e0b" },
+    { id: "wrist",     label: "Wrist Pitch",     min: 0, max: 270, color: "#34d399" },
+    { id: "gripper",   label: "Wrist Roll",      min: 0, max: 270, color: "#fb923c" },
+    { id: "auxiliary", label: "Gripper",         min: 0, max: 270, color: "#f472b6" },
 ];
 
 const DEFAULT_ANGLES = { base: 90, shoulder: 90, elbow: 90, wrist: 90, gripper: 90, auxiliary: 90 };
@@ -98,7 +98,7 @@ export default function ServoControl() {
             <div className="flex flex-col gap-5 flex-1 py-2 custom-scroll overflow-y-auto pr-2">
                 {SERVOS.map(({ id, label, color }) => {
                     const val = angles[id];
-                    const pct = (val / 180) * 100;
+                    const pct = (val / 270) * 100;
                     return (
                         <div key={id} className="group">
                             <div className="flex items-center justify-between mb-2">
@@ -116,7 +116,7 @@ export default function ServoControl() {
                                 <input
                                     type="range"
                                     min={0}
-                                    max={180}
+                                    max={270}
                                     value={val}
                                     onChange={(e) => handleSlider(id, e.target.value)}
                                     className="servo-slider"
