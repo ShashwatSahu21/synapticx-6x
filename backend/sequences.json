@@ -9,7 +9,164 @@
   "ff63ae39": {
     "name": "Mission 2",
     "created": "2026-04-04T03:43:57.480072",
-    "waypoints": [],
+    "waypoints": [
+      {
+        "label": "Point 1",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 2",
+        "angles": {
+          "base": 177.0,
+          "shoulder": 47.0,
+          "elbow": 178.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 3",
+        "angles": {
+          "base": 177.0,
+          "shoulder": 87.0,
+          "elbow": 178.0,
+          "wrist": 90.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 4",
+        "angles": {
+          "base": 177.0,
+          "shoulder": 76.0,
+          "elbow": 178.0,
+          "wrist": 92.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 5",
+        "angles": {
+          "base": 2.0,
+          "shoulder": 75.0,
+          "elbow": 178.0,
+          "wrist": 92.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 6",
+        "angles": {
+          "base": 92.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 63.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 7",
+        "angles": {
+          "base": 88.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 88.0,
+          "gripper": 70.0,
+          "auxiliary": 95.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 8",
+        "angles": {
+          "base": 92.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 89.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 9",
+        "angles": {
+          "base": 104.0,
+          "shoulder": 3.0,
+          "elbow": 92.0,
+          "wrist": 89.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 10",
+        "angles": {
+          "base": 2.0,
+          "shoulder": 40.0,
+          "elbow": 178.0,
+          "wrist": 89.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 11",
+        "angles": {
+          "base": 47.0,
+          "shoulder": 3.0,
+          "elbow": 178.0,
+          "wrist": 89.0,
+          "gripper": 90.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      },
+      {
+        "label": "Point 12",
+        "angles": {
+          "base": 91.0,
+          "shoulder": 88.0,
+          "elbow": 88.0,
+          "wrist": 92.0,
+          "gripper": 85.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
+      }
+    ],
     "loop": false,
     "speed": 1.0
   },
@@ -141,6 +298,1774 @@
         },
         "delay_ms": 1000,
         "transition_ms": 800
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "26cf86fb": {
+    "name": "Draw Square",
+    "created": "2026-04-14T02:37:54.682729",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 4",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "66b2e093": {
+    "name": "Pick & Place",
+    "created": "2026-04-14T02:38:14.653292",
+    "waypoints": [
+      {
+        "label": "Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Lower to Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Grip Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 800,
+        "transition_ms": 600
+      },
+      {
+        "label": "Lift Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 400,
+        "transition_ms": 800
+      },
+      {
+        "label": "Move to Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Lower to Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Release Cube",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 600
+      },
+      {
+        "label": "Lift Away",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Return Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "b4b7d866": {
+    "name": "Pick & Place",
+    "created": "2026-04-14T02:38:17.705075",
+    "waypoints": [
+      {
+        "label": "Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Lower to Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Grip Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 800,
+        "transition_ms": 600
+      },
+      {
+        "label": "Lift Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 400,
+        "transition_ms": 800
+      },
+      {
+        "label": "Move to Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Lower to Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Release Cube",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 600
+      },
+      {
+        "label": "Lift Away",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Return Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "8f7f8c86": {
+    "name": "Stack 2 Cubes",
+    "created": "2026-04-14T02:38:36.445346",
+    "waypoints": [
+      {
+        "label": "L1: Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1000
+      },
+      {
+        "label": "L1: Lower Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: Grip",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 700,
+        "transition_ms": 500
+      },
+      {
+        "label": "L1: Lift",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: To Stack",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "L1: Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: Release",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 500
+      },
+      {
+        "label": "L1: Clear",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1000
+      },
+      {
+        "label": "L2: Lower Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Grip",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 700,
+        "transition_ms": 500
+      },
+      {
+        "label": "L2: Lift",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: To Stack",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 52.5,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "L2: Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 15.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Release",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 15.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 500
+      },
+      {
+        "label": "L2: Clear",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 52.5,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Return Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "0c7ff414": {
+    "name": "Draw Triangle",
+    "created": "2026-04-14T02:39:01.808412",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 136.66666666666666,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 136.66666666666666,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "2681c629": {
+    "name": "Draw Rectangle",
+    "created": "2026-04-14T02:39:28.392437",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 75.0,
+          "shoulder": 25.0,
+          "elbow": 122.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 75.0,
+          "shoulder": 25.0,
+          "elbow": 122.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 105.0,
+          "shoulder": 25.0,
+          "elbow": 122.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 105.0,
+          "shoulder": 25.0,
+          "elbow": 138.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 4",
+        "angles": {
+          "base": 75.0,
+          "shoulder": 25.0,
+          "elbow": 138.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 75.0,
+          "shoulder": 25.0,
+          "elbow": 122.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 75.0,
+          "shoulder": 25.0,
+          "elbow": 122.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "7889fc0a": {
+    "name": "Draw Square",
+    "created": "2026-04-14T04:43:38.179360",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 4",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "30cf4023": {
+    "name": "Draw Square",
+    "created": "2026-04-14T04:43:41.917642",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 4",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "6eb4327a": {
+    "name": "Draw Square",
+    "created": "2026-04-14T04:43:42.584767",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 4",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 140.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "988d93df": {
+    "name": "Draw Triangle",
+    "created": "2026-04-14T04:44:09.060688",
+    "waypoints": [
+      {
+        "label": "Approach",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Pen Down",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 200,
+        "transition_ms": 600
+      },
+      {
+        "label": "Corner 2",
+        "angles": {
+          "base": 100.0,
+          "shoulder": 25.0,
+          "elbow": 136.66666666666666,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Corner 3",
+        "angles": {
+          "base": 80.0,
+          "shoulder": 25.0,
+          "elbow": 136.66666666666666,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Close Shape",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 40.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Pen Up",
+        "angles": {
+          "base": 90.0,
+          "shoulder": 25.0,
+          "elbow": 120.0,
+          "wrist": 70.0,
+          "gripper": 50.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 600
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "64b39264": {
+    "name": "Pick & Place",
+    "created": "2026-04-14T04:44:26.342877",
+    "waypoints": [
+      {
+        "label": "Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      },
+      {
+        "label": "Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Lower to Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Grip Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 800,
+        "transition_ms": 600
+      },
+      {
+        "label": "Lift Cube",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 400,
+        "transition_ms": 800
+      },
+      {
+        "label": "Move to Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "Lower to Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Release Cube",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 600
+      },
+      {
+        "label": "Lift Away",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Return Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "a4aa8624": {
+    "name": "Stack 2 Cubes",
+    "created": "2026-04-14T04:44:50.147757",
+    "waypoints": [
+      {
+        "label": "L1: Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1000
+      },
+      {
+        "label": "L1: Lower Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: Grip",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 700,
+        "transition_ms": 500
+      },
+      {
+        "label": "L1: Lift",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: To Stack",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "L1: Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: Release",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 500
+      },
+      {
+        "label": "L1: Clear",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1000
+      },
+      {
+        "label": "L2: Lower Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Grip",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 700,
+        "transition_ms": 500
+      },
+      {
+        "label": "L2: Lift",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: To Stack",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 52.5,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "L2: Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 15.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Release",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 15.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 500
+      },
+      {
+        "label": "L2: Clear",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 52.5,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Return Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
+      }
+    ],
+    "loop": false,
+    "speed": 1.0
+  },
+  "45d84877": {
+    "name": "Stack 2 Cubes",
+    "created": "2026-04-14T04:44:51.219600",
+    "waypoints": [
+      {
+        "label": "L1: Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1000
+      },
+      {
+        "label": "L1: Lower Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: Grip",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 700,
+        "transition_ms": 500
+      },
+      {
+        "label": "L1: Lift",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: To Stack",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "L1: Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L1: Release",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 500
+      },
+      {
+        "label": "L1: Clear",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Above Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1000
+      },
+      {
+        "label": "L2: Lower Pick",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Grip",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 20.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 700,
+        "transition_ms": 500
+      },
+      {
+        "label": "L2: Lift",
+        "angles": {
+          "base": 60.0,
+          "shoulder": 55.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: To Stack",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 52.5,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 1200
+      },
+      {
+        "label": "L2: Place",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 15.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 45.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "L2: Release",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 15.0,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 600,
+        "transition_ms": 500
+      },
+      {
+        "label": "L2: Clear",
+        "angles": {
+          "base": 120.0,
+          "shoulder": 52.5,
+          "elbow": 155.0,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 300,
+        "transition_ms": 800
+      },
+      {
+        "label": "Return Home",
+        "angles": {
+          "base": 90,
+          "shoulder": 90,
+          "elbow": 90,
+          "wrist": 90.0,
+          "gripper": 120.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 500,
+        "transition_ms": 1500
       }
     ],
     "loop": false,

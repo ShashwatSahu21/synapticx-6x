@@ -774,7 +774,7 @@ def update_servo(body: ServoUpdate):
             # In biosignal/hybrid mode, the bio-signal engine owns the target joint
             if _control_mode in ("biosignal", "hybrid") and name == bio_joint:
                 continue  # skip — auto-drive thread controls this joint
-            clamped = max(0.0, min(180.0, angle))
+            clamped = max(0.0, min(270.0, angle))
             servo_state[name] = clamped
             updated.append(name)
 
@@ -1391,6 +1391,262 @@ def take_snapshot():
     return {"status": "ok", "angles": dict(servo_state), "timestamp": datetime.now().isoformat()}
 
 
+# ─── Controller Quick-Capture Endpoint ────────────────────────────────────────
+
+@app.post("/sequences/capture")
+def capture_waypoint_to_active():
+    """Capture current servo state as a waypoint in the active (selected) sequence.
+    Called by the controller when L2+R2 trigger is pressed — no need to visit
+    the Mission page manually."""
+    if not _selected_sequence_id:
+        _add_log("WARN", "⚠ Capture trigger fired but no active mission selected")
+        return {"status": "error", "message": "No active mission selected. Create/select a mission first."}
+
+    seq_id = _selected_sequence_id
+    if seq_id not in _sequences:
+        return {"status": "error", "message": f"Selected sequence '{seq_id}' not found"}
+
+    snap = dict(servo_state)
+    idx = len(_sequences[seq_id]["waypoints"])
+    wp = {
+        "label": f"Point {idx + 1}",
+        "angles": snap,
+        "delay_ms": 1000,
+        "transition_ms": 800,
+    }
+    _sequences[seq_id]["waypoints"].append(wp)
+    _save_sequences()
+    name = _sequences[seq_id]["name"]
+    _add_log("OK", f"🎯 Waypoint #{idx + 1} captured → '{name}' — "
+             f"[{', '.join(f'{k}:{int(v)}°' for k, v in snap.items())}]")
+    return {
+        "status": "ok",
+        "mission": name,
+        "waypoint_index": idx,
+        "waypoint": wp,
+        "total_waypoints": idx + 1,
+    }
+
+
+# ─── Pre-Built Shape & Task Sequence Generators ──────────────────────────────
+
+class GenerateShapeRequest(BaseModel):
+    shape: str                              # "square" | "triangle" | "rectangle"
+    name: Optional[str] = None              # custom mission name
+    base_angle: Optional[float] = 90.0      # base rotation center
+    pen_down_wrist: Optional[float] = 40.0  # wrist angle when pen touches surface
+    pen_up_wrist: Optional[float] = 70.0    # wrist angle when pen lifts
+    size_deg: Optional[float] = 20.0        # size of shape in degrees of elbow travel
+    transition_ms: Optional[int] = 1200     # speed of movement between corners
+    delay_ms: Optional[int] = 300           # pause at each corner
+
+
+@app.post("/sequences/generate-shape")
+def generate_shape_sequence(body: GenerateShapeRequest):
+    """Generate a pre-built drawing sequence for basic shapes.
+    The arm holds a pen and traces the shape on a surface."""
+    shape = body.shape.lower().strip()
+    if shape not in ("square", "triangle", "rectangle"):
+        return {"status": "error", "message": f"Unknown shape '{shape}'. Use: square, triangle, rectangle"}
+
+    sid = str(_uuid.uuid4())[:8]
+    base = body.base_angle
+    pen_down = body.pen_down_wrist
+    pen_up = body.pen_up_wrist
+    sz = body.size_deg
+    t_ms = body.transition_ms
+    d_ms = body.delay_ms
+    # Shoulder at low angle = arm reaching down to the drawing surface
+    shoulder_draw = 25.0
+    elbow_center = 130.0
+    gripper_hold = 50.0  # grip the pen tightly
+    aux = 90.0
+
+    def _wp(label, b, s, e, w, g=gripper_hold, a=aux, trans=t_ms, delay=d_ms):
+        return {"label": label, "angles": {"base": b, "shoulder": s, "elbow": e,
+                "wrist": w, "gripper": g, "auxiliary": a}, "delay_ms": delay, "transition_ms": trans}
+
+    waypoints = []
+
+    if shape == "square":
+        # Corners: vary base (horizontal) and elbow (depth) to trace a square
+        c = [
+            (base - sz/2, elbow_center - sz/2),  # bottom-left
+            (base + sz/2, elbow_center - sz/2),  # bottom-right
+            (base + sz/2, elbow_center + sz/2),  # top-right
+            (base - sz/2, elbow_center + sz/2),  # top-left
+        ]
+        # Approach: pen up at start position
+        waypoints.append(_wp("Approach", c[0][0], shoulder_draw, c[0][1], pen_up, trans=1500, delay=500))
+        # Pen down
+        waypoints.append(_wp("Pen Down", c[0][0], shoulder_draw, c[0][1], pen_down, trans=600, delay=200))
+        # Trace corners
+        for i, (cb, ce) in enumerate(c[1:], 2):
+            waypoints.append(_wp(f"Corner {i}", cb, shoulder_draw, ce, pen_down))
+        # Close the shape — back to corner 1
+        waypoints.append(_wp("Close Shape", c[0][0], shoulder_draw, c[0][1], pen_down))
+        # Pen up
+        waypoints.append(_wp("Pen Up", c[0][0], shoulder_draw, c[0][1], pen_up, trans=600, delay=300))
+
+    elif shape == "triangle":
+        # Equilateral-ish triangle
+        c = [
+            (base, elbow_center - sz/2),                  # bottom center
+            (base + sz/2, elbow_center + sz/3),            # right
+            (base - sz/2, elbow_center + sz/3),            # left
+        ]
+        waypoints.append(_wp("Approach", c[0][0], shoulder_draw, c[0][1], pen_up, trans=1500, delay=500))
+        waypoints.append(_wp("Pen Down", c[0][0], shoulder_draw, c[0][1], pen_down, trans=600, delay=200))
+        for i, (cb, ce) in enumerate(c[1:], 2):
+            waypoints.append(_wp(f"Corner {i}", cb, shoulder_draw, ce, pen_down))
+        waypoints.append(_wp("Close Shape", c[0][0], shoulder_draw, c[0][1], pen_down))
+        waypoints.append(_wp("Pen Up", c[0][0], shoulder_draw, c[0][1], pen_up, trans=600, delay=300))
+
+    elif shape == "rectangle":
+        # Rectangle: wider in base (horizontal), shorter in elbow (depth)
+        w_half = sz * 0.75
+        h_half = sz * 0.4
+        c = [
+            (base - w_half, elbow_center - h_half),
+            (base + w_half, elbow_center - h_half),
+            (base + w_half, elbow_center + h_half),
+            (base - w_half, elbow_center + h_half),
+        ]
+        waypoints.append(_wp("Approach", c[0][0], shoulder_draw, c[0][1], pen_up, trans=1500, delay=500))
+        waypoints.append(_wp("Pen Down", c[0][0], shoulder_draw, c[0][1], pen_down, trans=600, delay=200))
+        for i, (cb, ce) in enumerate(c[1:], 2):
+            waypoints.append(_wp(f"Corner {i}", cb, shoulder_draw, ce, pen_down))
+        waypoints.append(_wp("Close Shape", c[0][0], shoulder_draw, c[0][1], pen_down))
+        waypoints.append(_wp("Pen Up", c[0][0], shoulder_draw, c[0][1], pen_up, trans=600, delay=300))
+
+    seq_name = body.name or f"Draw {shape.title()}"
+    _sequences[sid] = {
+        "name": seq_name,
+        "created": datetime.now().isoformat(),
+        "waypoints": waypoints,
+        "loop": False,
+        "speed": 1.0,
+    }
+    _save_sequences()
+    _add_log("OK", f"✏️ Shape sequence generated: '{seq_name}' ({shape}) — {len(waypoints)} waypoints")
+    return {"status": "ok", "id": sid, "sequence": _sequences[sid]}
+
+
+class GenerateTaskRequest(BaseModel):
+    task: str                                  # "pick_place" | "stack"
+    name: Optional[str] = None
+    pick_base: Optional[float] = 60.0          # base angle at pick location
+    place_base: Optional[float] = 120.0         # base angle at place location
+    cube_size_mm: Optional[float] = 50.0        # cube dimension in mm
+    stack_count: Optional[int] = 2              # number of cubes to stack
+    grip_open: Optional[float] = 120.0          # gripper open angle
+    grip_closed: Optional[float] = 45.0         # gripper closed on cube
+    surface_shoulder: Optional[float] = 20.0    # shoulder when at surface level
+    hover_shoulder: Optional[float] = 55.0      # shoulder when hovering above
+    surface_elbow: Optional[float] = 155.0      # elbow when reaching to surface
+    transition_ms: Optional[int] = 1200
+    delay_ms: Optional[int] = 600
+
+
+@app.post("/sequences/generate-task")
+def generate_task_sequence(body: GenerateTaskRequest):
+    """Generate pre-built pick-and-place or stacking task sequences."""
+    task = body.task.lower().strip()
+    if task not in ("pick_place", "stack"):
+        return {"status": "error", "message": f"Unknown task '{task}'. Use: pick_place, stack"}
+
+    sid = str(_uuid.uuid4())[:8]
+    t_ms = body.transition_ms
+    d_ms = body.delay_ms
+    wrist_flat = 90.0
+    aux = 90.0
+
+    def _wp(label, b, s, e, w, g, a=aux, trans=t_ms, delay=d_ms):
+        return {"label": label, "angles": {"base": b, "shoulder": s, "elbow": e,
+                "wrist": w, "gripper": g, "auxiliary": a}, "delay_ms": delay, "transition_ms": trans}
+
+    waypoints = []
+
+    if task == "pick_place":
+        # ── Single pick-and-place operation for a 50mm cube ──
+        waypoints = [
+            # 1. Home position
+            _wp("Home", 90, 90, 90, wrist_flat, body.grip_open, trans=1500, delay=500),
+            # 2. Move above pick location
+            _wp("Above Pick", body.pick_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=1200, delay=300),
+            # 3. Lower to cube
+            _wp("Lower to Cube", body.pick_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=800, delay=300),
+            # 4. Close gripper on cube
+            _wp("Grip Cube", body.pick_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=600, delay=800),
+            # 5. Lift cube
+            _wp("Lift Cube", body.pick_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=800, delay=400),
+            # 6. Rotate to place location
+            _wp("Move to Place", body.place_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=1200, delay=300),
+            # 7. Lower to place surface
+            _wp("Lower to Place", body.place_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=800, delay=300),
+            # 8. Release cube
+            _wp("Release Cube", body.place_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=600, delay=600),
+            # 9. Lift away
+            _wp("Lift Away", body.place_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=800, delay=300),
+            # 10. Return home
+            _wp("Return Home", 90, 90, 90, wrist_flat, body.grip_open, trans=1500, delay=500),
+        ]
+
+    elif task == "stack":
+        # ── Stacking operation: pick cubes from pick_base, stack at place_base ──
+        # Each successive cube is placed slightly higher (less shoulder angle = higher lift)
+        # The shoulder offset per cube layer accounts for the 50mm cube height
+        height_offset_per_layer = 5.0  # degrees of shoulder change per cube layer
+
+        for layer in range(body.stack_count):
+            # Place height gets higher with each layer
+            place_shoulder = body.surface_shoulder - (layer * height_offset_per_layer)
+            place_hover = body.hover_shoulder - (layer * height_offset_per_layer * 0.5)
+            layer_label = f"L{layer + 1}"
+
+            waypoints.extend([
+                # Move above pick zone
+                _wp(f"{layer_label}: Above Pick", body.pick_base, body.hover_shoulder, body.surface_elbow,
+                    wrist_flat, body.grip_open, trans=1000, delay=300),
+                # Lower to pick
+                _wp(f"{layer_label}: Lower Pick", body.pick_base, body.surface_shoulder, body.surface_elbow,
+                    wrist_flat, body.grip_open, trans=800, delay=300),
+                # Grip
+                _wp(f"{layer_label}: Grip", body.pick_base, body.surface_shoulder, body.surface_elbow,
+                    wrist_flat, body.grip_closed, trans=500, delay=700),
+                # Lift
+                _wp(f"{layer_label}: Lift", body.pick_base, body.hover_shoulder, body.surface_elbow,
+                    wrist_flat, body.grip_closed, trans=800, delay=300),
+                # Move to stack
+                _wp(f"{layer_label}: To Stack", body.place_base, place_hover, body.surface_elbow,
+                    wrist_flat, body.grip_closed, trans=1200, delay=300),
+                # Lower onto stack
+                _wp(f"{layer_label}: Place", body.place_base, place_shoulder, body.surface_elbow,
+                    wrist_flat, body.grip_closed, trans=800, delay=300),
+                # Release
+                _wp(f"{layer_label}: Release", body.place_base, place_shoulder, body.surface_elbow,
+                    wrist_flat, body.grip_open, trans=500, delay=600),
+                # Lift away
+                _wp(f"{layer_label}: Clear", body.place_base, place_hover, body.surface_elbow,
+                    wrist_flat, body.grip_open, trans=800, delay=300),
+            ])
+
+        # Return home
+        waypoints.append(_wp("Return Home", 90, 90, 90, wrist_flat, body.grip_open, trans=1500, delay=500))
+
+    seq_name = body.name or (f"Pick & Place" if task == "pick_place" else f"Stack {body.stack_count} Cubes")
+    _sequences[sid] = {
+        "name": seq_name,
+        "created": datetime.now().isoformat(),
+        "waypoints": waypoints,
+        "loop": False,
+        "speed": 1.0,
+    }
+    _save_sequences()
+    _add_log("OK", f"🤖 Task sequence generated: '{seq_name}' ({task}) — {len(waypoints)} waypoints")
+    return {"status": "ok", "id": sid, "sequence": _sequences[sid]}
+
+
 # ─── Playback Engine ─────────────────────────────────────────────────────────
 
 def _interpolate_angles(a: dict, b: dict, t: float) -> dict:
@@ -1410,7 +1666,7 @@ def _send_angles_to_arm(angles: dict):
     global _arm_serial
     for key in servo_state:
         if key in angles:
-            servo_state[key] = round(max(0, min(180, angles[key])), 1)
+            servo_state[key] = round(max(0, min(270, angles[key])), 1)
 
     if _arm_serial and _arm_serial.is_open:
         cmd = (f"{int(servo_state['base'])},"
@@ -1831,7 +2087,7 @@ async def ros_bridge_ws(websocket: WebSocket):
                             angle_deg = math.degrees(positions[i])
                             key = joint_keys[i] if i < len(joint_keys) else None
                             if key and key in servo_state:
-                                servo_state[key] = max(0, min(180, round(angle_deg, 1)))
+                                servo_state[key] = max(0, min(270, round(angle_deg, 1)))
                     _add_log("INFO", f"ROS joint command received ({len(positions)} joints)")
 
                     # Write to hardware if not in simulation
