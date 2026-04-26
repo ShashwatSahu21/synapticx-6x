@@ -131,12 +131,12 @@ export default function BioSignalPanel() {
                             ? bio.emg_connected
                                 ? "bg-green-400 animate-pulse"
                                 : "bg-yellow-400 animate-pulse"
-                            : "bg-neutral-600"
+                            : "bg-blue-400 animate-pulse"
                     }`} />
-                    <span className={`text-xs font-mono ${
-                        isActive ? "text-neural-cyan" : "text-neural-muted"
+                    <span className={`text-xs font-mono opacity-80 ${
+                        isActive ? "text-neural-cyan" : "text-blue-400"
                     }`}>
-                        {isActive ? (bio.emg_connected ? "ACTIVE" : "NO EMG") : "STANDBY"}
+                        {isActive ? (bio.emg_connected ? "ACTIVE" : "NO EMG") : "DEMO RUNNING"}
                     </span>
                 </div>
             </div>

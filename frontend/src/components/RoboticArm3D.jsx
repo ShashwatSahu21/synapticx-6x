@@ -146,7 +146,21 @@ export default function RoboticArm3D({ height = "100%" }) {
       const res = await fetchSystemStatus();
       if (res.servo_angles) setAngles(res.servo_angles);
       setConnected(res.any_node_connected || false);
-    } catch { setConnected(false); }
+    } catch { 
+      setConnected(false); 
+      // AUTO-PILOT DEMO for competition if offline
+      setAngles(prev => {
+        const t = Date.now() / 1000;
+        return {
+          base: 90 + Math.sin(t * 0.5) * 30,
+          shoulder: 90 + Math.cos(t * 0.7) * 20,
+          elbow: 120 + Math.sin(t * 0.8) * 40,
+          wrist: 90 + Math.sin(t * 1.2) * 20,
+          gripper: 90 + Math.sin(t * 0.3) * 40,
+          auxiliary: 20 + Math.sin(t * 2.1) * 20,
+        };
+      });
+    }
   }, []);
 
   useEffect(() => {
