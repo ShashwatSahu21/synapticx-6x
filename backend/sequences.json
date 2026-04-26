@@ -6,170 +6,6 @@
     "loop": false,
     "speed": 1.0
   },
-  "ff63ae39": {
-    "name": "Mission 2",
-    "created": "2026-04-04T03:43:57.480072",
-    "waypoints": [
-      {
-        "label": "Point 1",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 2",
-        "angles": {
-          "base": 177.0,
-          "shoulder": 47.0,
-          "elbow": 178.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 3",
-        "angles": {
-          "base": 177.0,
-          "shoulder": 87.0,
-          "elbow": 178.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 4",
-        "angles": {
-          "base": 177.0,
-          "shoulder": 76.0,
-          "elbow": 178.0,
-          "wrist": 92.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 5",
-        "angles": {
-          "base": 2.0,
-          "shoulder": 75.0,
-          "elbow": 178.0,
-          "wrist": 92.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 6",
-        "angles": {
-          "base": 92.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 63.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 7",
-        "angles": {
-          "base": 88.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 88.0,
-          "gripper": 70.0,
-          "auxiliary": 95.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 8",
-        "angles": {
-          "base": 92.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 89.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 9",
-        "angles": {
-          "base": 104.0,
-          "shoulder": 3.0,
-          "elbow": 92.0,
-          "wrist": 89.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 10",
-        "angles": {
-          "base": 2.0,
-          "shoulder": 40.0,
-          "elbow": 178.0,
-          "wrist": 89.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 11",
-        "angles": {
-          "base": 47.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 89.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 12",
-        "angles": {
-          "base": 91.0,
-          "shoulder": 88.0,
-          "elbow": 88.0,
-          "wrist": 92.0,
-          "gripper": 85.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
   "f61b8b0c": {
     "name": "Mission 3",
     "created": "2026-04-04T03:44:36.839419",
@@ -535,6 +371,19 @@
         },
         "delay_ms": 500,
         "transition_ms": 1500
+      },
+      {
+        "label": "Point 11",
+        "angles": {
+          "base": 137.0,
+          "shoulder": 4.0,
+          "elbow": 268.0,
+          "wrist": 135.0,
+          "gripper": 80.0,
+          "auxiliary": 90.0
+        },
+        "delay_ms": 1000,
+        "transition_ms": 800
       }
     ],
     "loop": false,
