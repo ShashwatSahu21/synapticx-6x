@@ -94,15 +94,15 @@ def design_notch(fs, f0, Q=35.0):
 
 servo_state: Dict[str, float] = {
     "base": 90.0, "shoulder": 90.0, "elbow": 90.0,
-    "wrist": 90.0, "gripper": 90.0, "auxiliary": 90.0,
+    "wrist": 90.0, "gripper": 90.0, "auxiliary": 0.0,
 }
 
 # ─── Connection state ─────────────────────────────────────────────────────────
 
 connection_state: Dict[str, dict] = {
     "emg": {
-        "port": None, "status": "disconnected",
-        "device": "BioAmp EXG Pill", "baud": 115200,
+        "port": "DEMO-MODE", "status": "connected",
+        "device": "BioAmp EXG Pill (Virtual)", "baud": 115200,
         "last_seen": None, "error": None,
     },
     "arm": {
@@ -612,6 +612,60 @@ def _watchdog():
 _watchdog_thread = threading.Thread(target=_watchdog, daemon=True)
 _watchdog_thread.start()
 
+# ─── Demo Mode / Signal Generator ─────────────────────────────────────────────
+import random as _random
+
+def _demo_signal_generator():
+    """Generates a realistic fake EMG signal for competition demos."""
+    global _sample_idx, _current_rms, _current_mav, _current_zcr, _current_wl, _bio_is_contracting, _bio_contraction_start
+    t = 0
+    _add_log("INFO", "💡 EMG Demo Mode active — generating synthetic bio-signals")
+    
+    # Pre-design a 'noise floor'
+    _calib_state["status"] = "done"
+    _calib_state["noise_floor"] = 15.0
+    _calib_state["peak_rms_seen"] = 350.0
+    _bio_config["rms_threshold"] = 15.0
+    _bio_config["rms_max"] = 300.0
+    
+    while True:
+        if connection_state["emg"]["status"] == "connected" and (_emg_thread is None or not _emg_thread.is_alive()):
+            t += 1
+            # 1. Base Noise + 50Hz Hum
+            base_noise = _random.uniform(-0.02, 0.02)
+            hum = 0.05 * math.sin(2 * math.pi * 50 * (t / FS))
+            
+            # 2. Occasional Muscle Bursts (Gaussian)
+            burst = 0.0
+            burst_cycle = (t % 50000) # every 5 seconds
+            if 10000 < burst_cycle < 15000:
+                intensity = math.sin(math.pi * (burst_cycle - 10000) / 5000)
+                burst = intensity * _random.normalvariate(0, 0.4)
+                _bio_is_contracting = True
+            else:
+                _bio_is_contracting = False
+            
+            raw_v = base_noise + hum + burst
+            raw_adc = int((raw_v + 2.5) / 5.0 * 1023)
+            
+            with _emg_lock:
+                EMG_BUFFER.append({"t": _sample_idx, "v": round(raw_v, 4), "raw": raw_adc})
+                _sample_idx += 1
+                
+                # Update features for UI
+                _current_rms = abs(burst) * 400 + 10.0 + _random.uniform(0, 5)
+                _current_mav = _current_rms * 0.8
+                _current_zcr = 60.0 + _random.uniform(-5, 5)
+                _current_wl = _current_rms * 2.1
+            
+            connection_state["emg"]["last_seen"] = datetime.now().isoformat()
+            time.sleep(0.005) # ~200Hz for demo visuals
+        else:
+            time.sleep(1)
+
+_demo_thread = threading.Thread(target=_demo_signal_generator, daemon=True)
+_demo_thread.start()
+
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
 @app.get("/neural-data")
@@ -876,7 +930,10 @@ def _bio_auto_drive():
                 f"angle={_bio_smoothed_angle:.1f}° | writes={_serial_write_count}"
             )
 
-        if _control_mode not in ("biosignal", "hybrid"):
+        if (_control_mode not in ("biosignal", "hybrid")):
+            # If in demo mode, we can still drive the servo state for visuals
+            if connection_state["emg"]["port"] == "DEMO-MODE":
+                 servo_state[target_joint] = float(clamped)
             continue
 
         if connection_state["emg"]["status"] != "connected":

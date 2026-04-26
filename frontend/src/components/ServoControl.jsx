@@ -10,7 +10,7 @@ const SERVOS = [
     { id: "auxiliary", label: "Gripper",         min: 0, max: 270, color: "#f472b6" },
 ];
 
-const DEFAULT_ANGLES = { base: 90, shoulder: 90, elbow: 90, wrist: 90, gripper: 90, auxiliary: 90 };
+const DEFAULT_ANGLES = { base: 90, shoulder: 90, elbow: 90, wrist: 90, gripper: 90, auxiliary: 0 };
 
 export default function ServoControl() {
     const [angles, setAngles] = useState(DEFAULT_ANGLES);

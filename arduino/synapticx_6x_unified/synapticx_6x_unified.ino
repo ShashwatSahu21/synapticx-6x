@@ -27,8 +27,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // Standard 180° servo: 0.5ms–2.4ms → 125–500 ticks at 50Hz
 // Extended 270° servo: 0.5ms–2.5ms → 102–512 ticks at 50Hz
 // These values should be fine-tuned per your exact servo model.
-#define SERVOMIN  102   // ~0.5ms  = 0°
-#define SERVOMAX  512   // ~2.5ms  = 270°
+#define SERVOMIN 102 // ~0.5ms  = 0°
+#define SERVOMAX 512 // ~2.5ms  = 270°
 #define SERVO_MAX_ANGLE 270
 
 // Torque protection: max degrees the servo can move per update cycle
@@ -41,8 +41,8 @@ char receivedChars[numChars];
 boolean newData = false;
 
 // Current actual servo positions (for rate limiting)
-int currentAngles[6] = {135, 135, 135, 135, 135, 135}; // Start at center (270/2)
-int targetAngles[6]  = {135, 135, 135, 135, 135, 135};
+int currentAngles[6] = {90, 90, 90, 90, 90, 0}; // Home: 90 (arm) / 0 (gripper)
+int targetAngles[6] = {90, 90, 90, 90, 90, 0};
 
 void setup() {
   Serial.begin(115200);
@@ -52,9 +52,10 @@ void setup() {
   pwm.setPWMFreq(50);    // Standard servos run at 50Hz
   Wire.setClock(400000); // 400kHz Fast I2C to reduce latency!
 
-  // Set all to 135 degrees (center of 0–270 range) initially
+  // Set initial home positions: Gripper (idx 5) to 0, others to 90
   for (int i = 0; i < 6; i++) {
-    int pulse = map(135, 0, SERVO_MAX_ANGLE, SERVOMIN, SERVOMAX);
+    int startAngle = (i == 5) ? 0 : 90;
+    int pulse = map(startAngle, 0, SERVO_MAX_ANGLE, SERVOMIN, SERVOMAX);
     pwm.setPWM(i, 0, pulse);
   }
 }
