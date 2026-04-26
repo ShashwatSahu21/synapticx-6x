@@ -27,15 +27,15 @@ import { updateServos, captureWaypoint, playSequence, getSelectedSequence, fetch
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const SERVO_MAX = 270;
-const SERVO_CENTER = 135; // 270/2
+const SERVO_CENTER = 90; // User home position
 
 const SERVO_MAP = [
     { key: "base",      dof: "Base Rotation", input: "Left X (Axis 0)",  color: "#00d4ff" },
     { key: "shoulder",  dof: "Shoulder",       input: "Left Y (Axis 1)",  color: "#a78bfa" },
     { key: "elbow",     dof: "Elbow Flex",     input: "Right Y (Axis 3)", color: "#f59e0b" },
     { key: "wrist",     dof: "Wrist Pitch",    input: "Dashboard Only",   color: "#34d399" },
-    { key: "gripper",   dof: "Gripper",        input: "R1 +5° / L1 −5°", color: "#fb923c" },
-    { key: "auxiliary",  dof: "Wrist Roll",     input: "← / → D-Pad ±5°", color: "#f472b6" },
+    { key: "gripper",   dof: "Wrist Roll",     input: "← / → D-Pad ±5°", color: "#fb923c" },
+    { key: "auxiliary",  dof: "Gripper",        input: "L2 +5° / R2 −5°", color: "#f472b6" },
 ];
 
 const BUTTON_LABELS = [
@@ -160,8 +160,8 @@ export default function ControllerPage() {
 
     const lastSentAngles = useRef({});
     const smoothedAnglesRef = useRef({
-        base: SERVO_CENTER, shoulder: SERVO_CENTER, elbow: SERVO_CENTER,
-        wrist: SERVO_CENTER, auxiliary: 90, gripper: 90
+        base: 90, shoulder: 90, elbow: 90,
+        wrist: 90, auxiliary: 0, gripper: 90
     });
     const lastSentTime = useRef(0);
     const rafRef = useRef(null);
@@ -176,7 +176,10 @@ export default function ControllerPage() {
     // D-Pad debounce refs
     const dpadLeftTriggered = useRef(false);
     const dpadRightTriggered = useRef(false);
-    // L1/R1 debounce refs
+    // L2/R2 debounce refs (Gripper)
+    const l2Triggered = useRef(false);
+    const r2Triggered = useRef(false);
+    // L1/R1 debounce refs (Capture)
     const l1Triggered = useRef(false);
     const r1Triggered = useRef(false);
 
@@ -213,9 +216,12 @@ export default function ControllerPage() {
             // ═══════════════════════════════════════════════════════════════
             // L2 + R2 COMBO → CAPTURE POSITION TO ACTIVE MISSION
             // ═══════════════════════════════════════════════════════════════
-            const l2 = newButtons[6]?.pressed;
-            const r2 = newButtons[7]?.pressed;
-            if (l2 && r2) {
+            // ═══════════════════════════════════════════════════════════════
+            // L1 + R1 COMBO → CAPTURE POSITION TO ACTIVE MISSION
+            // ═══════════════════════════════════════════════════════════════
+            const l1 = newButtons[4]?.pressed;
+            const r1 = newButtons[5]?.pressed;
+            if (l1 && r1) {
                 if (!comboTriggered.current) {
                     captureWaypoint().then(res => {
                         if (res.status === "ok") {
@@ -252,7 +258,7 @@ export default function ControllerPage() {
 
             if (dpadLeft) {
                 if (!dpadLeftTriggered.current) {
-                    smoothedAnglesRef.current.auxiliary = Math.max(0, smoothedAnglesRef.current.auxiliary - DPAD_STEP);
+                    smoothedAnglesRef.current.gripper = Math.max(0, smoothedAnglesRef.current.gripper - DPAD_STEP);
                     dpadLeftTriggered.current = true;
                 }
             } else {
@@ -261,7 +267,7 @@ export default function ControllerPage() {
 
             if (dpadRight) {
                 if (!dpadRightTriggered.current) {
-                    smoothedAnglesRef.current.auxiliary = Math.min(SERVO_MAX, smoothedAnglesRef.current.auxiliary + DPAD_STEP);
+                    smoothedAnglesRef.current.gripper = Math.min(SERVO_MAX, smoothedAnglesRef.current.gripper + DPAD_STEP);
                     dpadRightTriggered.current = true;
                 }
             } else {
@@ -271,25 +277,28 @@ export default function ControllerPage() {
             // ═══════════════════════════════════════════════════════════════
             // R1 → GRIPPER OPEN (+5°)  |  L1 → GRIPPER CLOSE (-5°)
             // ═══════════════════════════════════════════════════════════════
-            const l1 = newButtons[4]?.pressed;
-            const r1 = newButtons[5]?.pressed;
+            // ═══════════════════════════════════════════════════════════════
+            // L2 → GRIPPER OPEN (+5°)  |  R2 → GRIPPER CLOSE (-5°)
+            // ═══════════════════════════════════════════════════════════════
+            const l2 = newButtons[6]?.pressed;
+            const r2 = newButtons[7]?.pressed;
 
-            if (r1) {
-                if (!r1Triggered.current) {
-                    smoothedAnglesRef.current.gripper = Math.min(SERVO_MAX, smoothedAnglesRef.current.gripper + GRIPPER_STEP);
-                    r1Triggered.current = true;
+            if (l2) {
+                if (!l2Triggered.current) {
+                    smoothedAnglesRef.current.auxiliary = Math.min(SERVO_MAX, smoothedAnglesRef.current.auxiliary + GRIPPER_STEP);
+                    l2Triggered.current = true;
                 }
             } else {
-                r1Triggered.current = false;
+                l2Triggered.current = false;
             }
 
-            if (l1) {
-                if (!l1Triggered.current) {
-                    smoothedAnglesRef.current.gripper = Math.max(0, smoothedAnglesRef.current.gripper - GRIPPER_STEP);
-                    l1Triggered.current = true;
+            if (r2) {
+                if (!r2Triggered.current) {
+                    smoothedAnglesRef.current.auxiliary = Math.max(0, smoothedAnglesRef.current.auxiliary - GRIPPER_STEP);
+                    r2Triggered.current = true;
                 }
             } else {
-                l1Triggered.current = false;
+                r2Triggered.current = false;
             }
 
             const anyInput = newAxes.some((a) => Math.abs(a) > DEAD_ZONE) || newButtons.some((b) => b.pressed);
@@ -467,12 +476,12 @@ export default function ControllerPage() {
                                 <span className="text-xs font-mono text-neural-cyan">{Math.round(gripAngle)}°</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className="text-[9px] font-mono text-white/40 w-8">L1 −</span>
+                                <span className="text-[9px] font-mono text-white/40 w-8">R2 −</span>
                                 <div className="flex-1 h-4 rounded-full relative overflow-hidden bg-white/5 border border-white/5">
                                     <div className="absolute top-0 bottom-0 rounded-full transition-all duration-150"
                                          style={{ width: `${(gripAngle / SERVO_MAX) * 100}%`, background: "linear-gradient(90deg, #fb923c, #f97316)", boxShadow: "0 0 10px rgba(251,146,60,0.4)" }} />
                                 </div>
-                                <span className="text-[9px] font-mono text-white/40 w-8 text-right">R1 +</span>
+                                <span className="text-[9px] font-mono text-white/40 w-8 text-right">L2 +</span>
                             </div>
                             <div className="flex justify-between mt-2 text-[8px] font-mono text-white/20">
                                 <span>CLOSED 0°</span>
@@ -527,10 +536,10 @@ export default function ControllerPage() {
                             <p className="text-[10px] uppercase tracking-[0.2em] text-neural-muted mb-4 font-bold">Controller Shortcuts</p>
                             <div className="flex flex-col gap-2.5">
                                 {[
-                                    { keys: "L2 + R2", action: "Capture Position", desc: "Save joint angles to active mission", color: "#00d4ff" },
+                                    { keys: "L1 + R1", action: "Capture Position", desc: "Save joint angles to active mission", color: "#00d4ff" },
                                     { keys: "Start", action: "Execute Mission", desc: "Play all saved waypoints", color: "#34d399" },
-                                    { keys: "R1", action: "Open Gripper", desc: `+${GRIPPER_STEP}° per press`, color: "#fb923c" },
-                                    { keys: "L1", action: "Close Gripper", desc: `−${GRIPPER_STEP}° per press`, color: "#fb923c" },
+                                    { keys: "L2", action: "Open Gripper", desc: `+${GRIPPER_STEP}° per press`, color: "#fb923c" },
+                                    { keys: "R2", action: "Close Gripper", desc: `−${GRIPPER_STEP}° per press`, color: "#fb923c" },
                                     { keys: "← D-Pad", action: "Roll Left", desc: `−${DPAD_STEP}° wrist roll`, color: "#f472b6" },
                                     { keys: "→ D-Pad", action: "Roll Right", desc: `+${DPAD_STEP}° wrist roll`, color: "#f472b6" },
                                 ].map(s => (
