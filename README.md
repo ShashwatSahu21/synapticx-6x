@@ -31,6 +31,23 @@
 
 ---
 
+## 🌐 Sim-to-Real & ROS Ecosystem
+SynapticX 6X is built with a **Sim-to-Real first** philosophy. The platform bridges the gap between virtual simulation and physical execution:
+
+- **RViz Visualization:** Native compatibility with ROS 2 and RViz. The backend serves as a ROS bridge, publishing `/joint_states` and subscribing to `/joint_commands`, allowing you to visualize kinematics and plan paths in a professional robotics environment.
+- **Digital Twin Sync:** Every movement in the virtual environment (Three.js/React Three Fiber) is mirrored to the physical servos with sub-50ms latency, ensuring high-fidelity parity.
+- **Unified URDF Workflow:** Designed to work with standard URDF models, enabling seamless transition from Gazebo simulations to real-world deployment.
+
+---
+
+## 🧠 Physical AI Dashboard: The Neural Bridge
+The SynapticX Dashboard is more than just a UI; it is the central nervous system of the **Physical AI** architecture:
+
+- **Neural Interface (EMG):** Real-time biological data (RMS, MAV, ZCR) is captured and processed through a DSP pipeline (HPF, LPF, Notch) to convert human muscle intent into robotic joint angles.
+- **Telemetry Fusion:** The dashboard merges 3D kinematics, bio-signal waveforms, and hardware serial logs into a single glassmorphic viewport.
+- **Closed-Loop Control:** Experience true "Physical AI" where biological inputs directly drive the 6-DOF actuator's logic, creating an organic link between human and machine.
+
+
 ## 🛠️ Tech Stack & Architecture
 
 | Layer | Technology | Description |
