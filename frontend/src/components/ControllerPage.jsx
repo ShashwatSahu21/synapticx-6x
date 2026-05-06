@@ -6,11 +6,11 @@ import { updateServos, captureWaypoint, playSequence, getSelectedSequence, fetch
 // ═══════════════════════════════════════════════════════════════════════════════
 //
 // LEFT STICK:
-//   X (Axis 0) → Base Rotation        (analog, 0–270°)
-//   Y (Axis 1) → Shoulder             (analog, 0–270°)
+//   X (Axis 0) → Base Rotation        (analog, 0–180°)
+//   Y (Axis 1) → Shoulder             (analog, 0–180°)
 //
 // RIGHT STICK:
-//   Y (Axis 3) → Elbow Flex           (analog, 0–270°)
+//   Y (Axis 3) → Elbow Flex           (analog, 0–180°)
 //   X (Axis 2) → *** DISABLED ***     (no command)
 //
 // BUTTONS:
@@ -23,19 +23,19 @@ import { updateServos, captureWaypoint, playSequence, getSelectedSequence, fetch
 // WRIST PITCH: Controlled only via Dashboard sliders (not on controller)
 // WRIST ROLL:  Home = 90°, only changes via D-Pad
 //
-// SERVO RANGE: All servos 0–270° (270° servo motors with torque protection)
+// SERVO RANGE: All servos 0–180° (180° servo motors with torque protection)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const SERVO_MAX = 270;
+const SERVO_MAX = 180;
 const SERVO_CENTER = 90; // User home position
 
 const SERVO_MAP = [
-    { key: "base",      dof: "Base Rotation", input: "Left X (Axis 0)",  color: "#00d4ff" },
-    { key: "shoulder",  dof: "Shoulder",       input: "Left Y (Axis 1)",  color: "#a78bfa" },
-    { key: "elbow",     dof: "Elbow Flex",     input: "Right Y (Axis 3)", color: "#f59e0b" },
-    { key: "wrist",     dof: "Wrist Pitch",    input: "Dashboard Only",   color: "#34d399" },
-    { key: "gripper",   dof: "Wrist Roll",     input: "← / → D-Pad ±5°", color: "#fb923c" },
-    { key: "auxiliary",  dof: "Gripper",        input: "L2 +5° / R2 −5°", color: "#f472b6" },
+    { key: "base",      dof: "Base Rotation", input: "Left X (Axis 0)",  color: "#00d4ff", max: 180 },
+    { key: "shoulder",  dof: "Shoulder",       input: "Left Y (Axis 1)",  color: "#a78bfa", max: 180 },
+    { key: "elbow",     dof: "Elbow Flex",     input: "Right Y (Axis 3)", color: "#f59e0b", max: 180 },
+    { key: "wrist",     dof: "Wrist Pitch",    input: "Dashboard Only",   color: "#34d399", max: 180 },
+    { key: "gripper",   dof: "Wrist Roll",     input: "← / → D-Pad ±5°", color: "#fb923c", max: 180 },
+    { key: "auxiliary",  dof: "Gripper",        input: "L2 +5° / R2 −5°", color: "#f472b6", max: 80 },
 ];
 
 const BUTTON_LABELS = [
@@ -267,7 +267,7 @@ export default function ControllerPage() {
 
             if (dpadRight) {
                 if (!dpadRightTriggered.current) {
-                    smoothedAnglesRef.current.gripper = Math.min(SERVO_MAX, smoothedAnglesRef.current.gripper + DPAD_STEP);
+                    smoothedAnglesRef.current.gripper = Math.min(180, smoothedAnglesRef.current.gripper + DPAD_STEP);
                     dpadRightTriggered.current = true;
                 }
             } else {
@@ -285,7 +285,7 @@ export default function ControllerPage() {
 
             if (l2) {
                 if (!l2Triggered.current) {
-                    smoothedAnglesRef.current.auxiliary = Math.min(SERVO_MAX, smoothedAnglesRef.current.auxiliary + GRIPPER_STEP);
+                    smoothedAnglesRef.current.auxiliary = Math.min(80, smoothedAnglesRef.current.auxiliary + GRIPPER_STEP);
                     l2Triggered.current = true;
                 }
             } else {
@@ -431,7 +431,7 @@ export default function ControllerPage() {
                 </div>
 
                 <div className="flex gap-6">
-                    {[{ label: "POLL", val: pollRate+"Hz" }, { label: "RANGE", val: "0–270°" }].map(s => (
+                    {[{ label: "POLL", val: pollRate+"Hz" }, { label: "RANGE", val: "0–180°" }].map(s => (
                         <div key={s.label} className="text-right">
                             <p className="text-[9px] uppercase tracking-widest text-neural-muted">{s.label}</p>
                             <p className="text-xs font-mono text-white font-bold">{s.val}</p>
@@ -479,13 +479,13 @@ export default function ControllerPage() {
                                 <span className="text-[9px] font-mono text-white/40 w-8">R2 −</span>
                                 <div className="flex-1 h-4 rounded-full relative overflow-hidden bg-white/5 border border-white/5">
                                     <div className="absolute top-0 bottom-0 rounded-full transition-all duration-150"
-                                         style={{ width: `${(gripAngle / SERVO_MAX) * 100}%`, background: "linear-gradient(90deg, #fb923c, #f97316)", boxShadow: "0 0 10px rgba(251,146,60,0.4)" }} />
+                                         style={{ width: `${(gripAngle / 80) * 100}%`, background: "linear-gradient(90deg, #fb923c, #f97316)", boxShadow: "0 0 10px rgba(251,146,60,0.4)" }} />
                                 </div>
                                 <span className="text-[9px] font-mono text-white/40 w-8 text-right">L2 +</span>
                             </div>
                             <div className="flex justify-between mt-2 text-[8px] font-mono text-white/20">
                                 <span>CLOSED 0°</span>
-                                <span>OPEN {SERVO_MAX}°</span>
+                                <span>OPEN 80°</span>
                             </div>
                         </div>
                         <div className="glass-panel p-5 border-white/5">
@@ -496,16 +496,16 @@ export default function ControllerPage() {
                             <div className="flex items-center gap-3">
                                 <span className="text-[9px] font-mono text-white/40 w-8">← −</span>
                                 <div className="flex-1 h-4 rounded-full relative overflow-hidden bg-white/5 border border-white/5">
-                                    <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: `${(90 / SERVO_MAX) * 100}%` }} />
+                                    <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: `${(90 / 180) * 100}%` }} />
                                     <div className="absolute top-0 bottom-0 rounded-full transition-all duration-150"
-                                         style={{ width: `${(rollAngle / SERVO_MAX) * 100}%`, background: "linear-gradient(90deg, #f472b6, #ec4899)", boxShadow: "0 0 10px rgba(244,114,182,0.4)" }} />
+                                         style={{ width: `${(rollAngle / 180) * 100}%`, background: "linear-gradient(90deg, #f472b6, #ec4899)", boxShadow: "0 0 10px rgba(244,114,182,0.4)" }} />
                                 </div>
                                 <span className="text-[9px] font-mono text-white/40 w-8 text-right">→ +</span>
                             </div>
                             <div className="flex justify-between mt-2 text-[8px] font-mono text-white/20">
                                 <span>0°</span>
                                 <span>90° home</span>
-                                <span>{SERVO_MAX}°</span>
+                                <span>180°</span>
                             </div>
                         </div>
                     </div>

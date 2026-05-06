@@ -195,7 +195,7 @@ _bio_config = {
     "ema_alpha": 0.25,            # FASTER smoothing (more responsive)
     "target_joint": "shoulder",    # physical shoulder (Channel 1)
     "angle_min": 10.0,            # servo safety
-    "angle_max": 170.0,           # servo safety
+    "angle_max": 180.0,           # servo safety
     "dead_zone": 1.0,             # ULTRA sensitive dead-zone (was 5.0)
     "contraction_hold_ms": 50,    # faster debounce
     "servo_rate_limit_ms": 20,    # higher update frequency (~50 Hz)
@@ -930,34 +930,21 @@ def _bio_auto_drive():
                 f"angle={_bio_smoothed_angle:.1f}° | writes={_serial_write_count}"
             )
 
-        if (_control_mode not in ("biosignal", "hybrid")):
-            # If in demo mode, we can still drive the servo state for visuals
-            if connection_state["emg"]["port"] == "DEMO-MODE":
-                 servo_state[target_joint] = float(clamped)
-            continue
-
-        if connection_state["emg"]["status"] != "connected":
-            continue
-
-        # Don't drive until calibration is done — we need real thresholds
-        if _calib_state["status"] != "done":
-            continue
-
         cfg = _bio_config
         target_joint = cfg["target_joint"]
-
-        # ── 1. Read current RMS from real filter pipeline ──
         rms = _current_rms
-
-        # ── 2. Map RMS → raw target angle via calibrated gamma curve ──
         raw_angle = _map_rms_to_angle(rms)
-
-        # ── 3. Apply EMA smoothing ──
         _bio_smoothed_angle = (
             cfg["ema_alpha"] * raw_angle +
             (1.0 - cfg["ema_alpha"]) * _bio_smoothed_angle
         )
         clamped = max(cfg["angle_min"], min(cfg["angle_max"], round(_bio_smoothed_angle)))
+
+        if (_control_mode not in ("biosignal", "hybrid")):
+            # If in demo mode, we can still drive the servo state for visuals
+            if connection_state["emg"]["port"] == "DEMO-MODE":
+                 servo_state[target_joint] = float(clamped)
+            continue
 
         # ── 4. Dead-zone ──
         angle_delta = abs(clamped - _bio_last_sent_angle)
@@ -1519,9 +1506,16 @@ def generate_shape_sequence(body: GenerateShapeRequest):
     gripper_hold = 50.0  # grip the pen tightly
     aux = 90.0
 
-    def _wp(label, b, s, e, w, g=gripper_hold, a=aux, trans=t_ms, delay=d_ms):
-        return {"label": label, "angles": {"base": b, "shoulder": s, "elbow": e,
-                "wrist": w, "gripper": g, "auxiliary": a}, "delay_ms": delay, "transition_ms": trans}
+    def _wp(label, b, s, e, w, a=gripper_hold, g=90.0, trans=t_ms, delay=d_ms):
+        return {
+            "label": label,
+            "angles": {
+                "base": b, "shoulder": s, "elbow": e,
+                "wrist": w, "gripper": g, "auxiliary": a
+            },
+            "delay_ms": delay,
+            "transition_ms": trans
+        }
 
     waypoints = []
 
@@ -1534,16 +1528,16 @@ def generate_shape_sequence(body: GenerateShapeRequest):
             (base - sz/2, elbow_center + sz/2),  # top-left
         ]
         # Approach: pen up at start position
-        waypoints.append(_wp("Approach", c[0][0], shoulder_draw, c[0][1], pen_up, trans=1500, delay=500))
+        waypoints.append(_wp("Approach", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_up, trans=1500, delay=500))
         # Pen down
-        waypoints.append(_wp("Pen Down", c[0][0], shoulder_draw, c[0][1], pen_down, trans=600, delay=200))
+        waypoints.append(_wp("Pen Down", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_down, trans=600, delay=200))
         # Trace corners
         for i, (cb, ce) in enumerate(c[1:], 2):
-            waypoints.append(_wp(f"Corner {i}", cb, shoulder_draw, ce, pen_down))
+            waypoints.append(_wp(f"Corner {i}", b=cb, s=shoulder_draw, e=ce, w=pen_down))
         # Close the shape — back to corner 1
-        waypoints.append(_wp("Close Shape", c[0][0], shoulder_draw, c[0][1], pen_down))
+        waypoints.append(_wp("Close Shape", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_down))
         # Pen up
-        waypoints.append(_wp("Pen Up", c[0][0], shoulder_draw, c[0][1], pen_up, trans=600, delay=300))
+        waypoints.append(_wp("Pen Up", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_up, trans=600, delay=300))
 
     elif shape == "triangle":
         # Equilateral-ish triangle
@@ -1552,12 +1546,12 @@ def generate_shape_sequence(body: GenerateShapeRequest):
             (base + sz/2, elbow_center + sz/3),            # right
             (base - sz/2, elbow_center + sz/3),            # left
         ]
-        waypoints.append(_wp("Approach", c[0][0], shoulder_draw, c[0][1], pen_up, trans=1500, delay=500))
-        waypoints.append(_wp("Pen Down", c[0][0], shoulder_draw, c[0][1], pen_down, trans=600, delay=200))
+        waypoints.append(_wp("Approach", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_up, trans=1500, delay=500))
+        waypoints.append(_wp("Pen Down", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_down, trans=600, delay=200))
         for i, (cb, ce) in enumerate(c[1:], 2):
-            waypoints.append(_wp(f"Corner {i}", cb, shoulder_draw, ce, pen_down))
-        waypoints.append(_wp("Close Shape", c[0][0], shoulder_draw, c[0][1], pen_down))
-        waypoints.append(_wp("Pen Up", c[0][0], shoulder_draw, c[0][1], pen_up, trans=600, delay=300))
+            waypoints.append(_wp(f"Corner {i}", b=cb, s=shoulder_draw, e=ce, w=pen_down))
+        waypoints.append(_wp("Close Shape", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_down))
+        waypoints.append(_wp("Pen Up", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_up, trans=600, delay=300))
 
     elif shape == "rectangle":
         # Rectangle: wider in base (horizontal), shorter in elbow (depth)
@@ -1569,12 +1563,12 @@ def generate_shape_sequence(body: GenerateShapeRequest):
             (base + w_half, elbow_center + h_half),
             (base - w_half, elbow_center + h_half),
         ]
-        waypoints.append(_wp("Approach", c[0][0], shoulder_draw, c[0][1], pen_up, trans=1500, delay=500))
-        waypoints.append(_wp("Pen Down", c[0][0], shoulder_draw, c[0][1], pen_down, trans=600, delay=200))
+        waypoints.append(_wp("Approach", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_up, trans=1500, delay=500))
+        waypoints.append(_wp("Pen Down", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_down, trans=600, delay=200))
         for i, (cb, ce) in enumerate(c[1:], 2):
-            waypoints.append(_wp(f"Corner {i}", cb, shoulder_draw, ce, pen_down))
-        waypoints.append(_wp("Close Shape", c[0][0], shoulder_draw, c[0][1], pen_down))
-        waypoints.append(_wp("Pen Up", c[0][0], shoulder_draw, c[0][1], pen_up, trans=600, delay=300))
+            waypoints.append(_wp(f"Corner {i}", b=cb, s=shoulder_draw, e=ce, w=pen_down))
+        waypoints.append(_wp("Close Shape", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_down))
+        waypoints.append(_wp("Pen Up", b=c[0][0], s=shoulder_draw, e=c[0][1], w=pen_up, trans=600, delay=300))
 
     seq_name = body.name or f"Draw {shape.title()}"
     _sequences[sid] = {
@@ -1596,8 +1590,8 @@ class GenerateTaskRequest(BaseModel):
     place_base: Optional[float] = 120.0         # base angle at place location
     cube_size_mm: Optional[float] = 50.0        # cube dimension in mm
     stack_count: Optional[int] = 2              # number of cubes to stack
-    grip_open: Optional[float] = 120.0          # gripper open angle
-    grip_closed: Optional[float] = 45.0         # gripper closed on cube
+    grip_open: Optional[float] = 80.0          # gripper open angle (max 80)
+    grip_closed: Optional[float] = 15.0         # gripper closed on cube
     surface_shoulder: Optional[float] = 20.0    # shoulder when at surface level
     hover_shoulder: Optional[float] = 55.0      # shoulder when hovering above
     surface_elbow: Optional[float] = 155.0      # elbow when reaching to surface
@@ -1618,9 +1612,16 @@ def generate_task_sequence(body: GenerateTaskRequest):
     wrist_flat = 90.0
     aux = 90.0
 
-    def _wp(label, b, s, e, w, g, a=aux, trans=t_ms, delay=d_ms):
-        return {"label": label, "angles": {"base": b, "shoulder": s, "elbow": e,
-                "wrist": w, "gripper": g, "auxiliary": a}, "delay_ms": delay, "transition_ms": trans}
+    def _wp(label, b, s, e, w, a, g=90.0, trans=t_ms, delay=d_ms):
+        return {
+            "label": label,
+            "angles": {
+                "base": b, "shoulder": s, "elbow": e,
+                "wrist": w, "gripper": g, "auxiliary": a
+            },
+            "delay_ms": delay,
+            "transition_ms": trans
+        }
 
     waypoints = []
 
@@ -1628,25 +1629,25 @@ def generate_task_sequence(body: GenerateTaskRequest):
         # ── Single pick-and-place operation for a 50mm cube ──
         waypoints = [
             # 1. Home position
-            _wp("Home", 90, 90, 90, wrist_flat, body.grip_open, trans=1500, delay=500),
+            _wp("Home", b=90, s=90, e=90, w=wrist_flat, a=body.grip_open, trans=1500, delay=500),
             # 2. Move above pick location
-            _wp("Above Pick", body.pick_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=1200, delay=300),
+            _wp("Above Pick", b=body.pick_base, s=body.hover_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_open, trans=1200, delay=300),
             # 3. Lower to cube
-            _wp("Lower to Cube", body.pick_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=800, delay=300),
+            _wp("Lower to Cube", b=body.pick_base, s=body.surface_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_open, trans=800, delay=300),
             # 4. Close gripper on cube
-            _wp("Grip Cube", body.pick_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=600, delay=800),
+            _wp("Grip Cube", b=body.pick_base, s=body.surface_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_closed, trans=600, delay=800),
             # 5. Lift cube
-            _wp("Lift Cube", body.pick_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=800, delay=400),
+            _wp("Lift Cube", b=body.pick_base, s=body.hover_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_closed, trans=800, delay=400),
             # 6. Rotate to place location
-            _wp("Move to Place", body.place_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=1200, delay=300),
+            _wp("Move to Place", b=body.place_base, s=body.hover_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_closed, trans=1200, delay=300),
             # 7. Lower to place surface
-            _wp("Lower to Place", body.place_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_closed, trans=800, delay=300),
+            _wp("Lower to Place", b=body.place_base, s=body.surface_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_closed, trans=800, delay=300),
             # 8. Release cube
-            _wp("Release Cube", body.place_base, body.surface_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=600, delay=600),
+            _wp("Release Cube", b=body.place_base, s=body.surface_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_open, trans=600, delay=600),
             # 9. Lift away
-            _wp("Lift Away", body.place_base, body.hover_shoulder, body.surface_elbow, wrist_flat, body.grip_open, trans=800, delay=300),
+            _wp("Lift Away", b=body.place_base, s=body.hover_shoulder, e=body.surface_elbow, w=wrist_flat, a=body.grip_open, trans=800, delay=300),
             # 10. Return home
-            _wp("Return Home", 90, 90, 90, wrist_flat, body.grip_open, trans=1500, delay=500),
+            _wp("Return Home", b=90, s=90, e=90, w=wrist_flat, a=body.grip_open, trans=1500, delay=500),
         ]
 
     elif task == "stack":
@@ -1663,33 +1664,33 @@ def generate_task_sequence(body: GenerateTaskRequest):
 
             waypoints.extend([
                 # Move above pick zone
-                _wp(f"{layer_label}: Above Pick", body.pick_base, body.hover_shoulder, body.surface_elbow,
-                    wrist_flat, body.grip_open, trans=1000, delay=300),
+                _wp(f"{layer_label}: Above Pick", b=body.pick_base, s=body.hover_shoulder, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_open, trans=1000, delay=300),
                 # Lower to pick
-                _wp(f"{layer_label}: Lower Pick", body.pick_base, body.surface_shoulder, body.surface_elbow,
-                    wrist_flat, body.grip_open, trans=800, delay=300),
+                _wp(f"{layer_label}: Lower Pick", b=body.pick_base, s=body.surface_shoulder, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_open, trans=800, delay=300),
                 # Grip
-                _wp(f"{layer_label}: Grip", body.pick_base, body.surface_shoulder, body.surface_elbow,
-                    wrist_flat, body.grip_closed, trans=500, delay=700),
+                _wp(f"{layer_label}: Grip", b=body.pick_base, s=body.surface_shoulder, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_closed, trans=500, delay=700),
                 # Lift
-                _wp(f"{layer_label}: Lift", body.pick_base, body.hover_shoulder, body.surface_elbow,
-                    wrist_flat, body.grip_closed, trans=800, delay=300),
+                _wp(f"{layer_label}: Lift", b=body.pick_base, s=body.hover_shoulder, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_closed, trans=800, delay=300),
                 # Move to stack
-                _wp(f"{layer_label}: To Stack", body.place_base, place_hover, body.surface_elbow,
-                    wrist_flat, body.grip_closed, trans=1200, delay=300),
+                _wp(f"{layer_label}: To Stack", b=body.place_base, s=place_hover, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_closed, trans=1200, delay=300),
                 # Lower onto stack
-                _wp(f"{layer_label}: Place", body.place_base, place_shoulder, body.surface_elbow,
-                    wrist_flat, body.grip_closed, trans=800, delay=300),
+                _wp(f"{layer_label}: Place", b=body.place_base, s=place_shoulder, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_closed, trans=800, delay=300),
                 # Release
-                _wp(f"{layer_label}: Release", body.place_base, place_shoulder, body.surface_elbow,
-                    wrist_flat, body.grip_open, trans=500, delay=600),
+                _wp(f"{layer_label}: Release", b=body.place_base, s=place_shoulder, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_open, trans=500, delay=600),
                 # Lift away
-                _wp(f"{layer_label}: Clear", body.place_base, place_hover, body.surface_elbow,
-                    wrist_flat, body.grip_open, trans=800, delay=300),
+                _wp(f"{layer_label}: Clear", b=body.place_base, s=place_hover, e=body.surface_elbow,
+                    w=wrist_flat, a=body.grip_open, trans=800, delay=300),
             ])
 
         # Return home
-        waypoints.append(_wp("Return Home", 90, 90, 90, wrist_flat, body.grip_open, trans=1500, delay=500))
+        waypoints.append(_wp("Return Home", b=90, s=90, e=90, w=wrist_flat, a=body.grip_open, trans=1500, delay=500))
 
     seq_name = body.name or (f"Pick & Place" if task == "pick_place" else f"Stack {body.stack_count} Cubes")
     _sequences[sid] = {
@@ -1723,7 +1724,7 @@ def _send_angles_to_arm(angles: dict):
     global _arm_serial
     for key in servo_state:
         if key in angles:
-            servo_state[key] = round(max(0, min(270, angles[key])), 1)
+            servo_state[key] = round(max(0, min(180, angles[key])), 1)
 
     if _arm_serial and _arm_serial.is_open:
         cmd = (f"{int(servo_state['base'])},"

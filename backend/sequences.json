@@ -1,147 +1,7 @@
 {
-  "733fe63c": {
-    "name": "Test Scripted Sequence",
-    "created": "2026-04-04T03:27:24.105434",
-    "waypoints": [],
-    "loop": false,
-    "speed": 1.0
-  },
-  "f61b8b0c": {
-    "name": "Mission 3",
-    "created": "2026-04-04T03:44:36.839419",
-    "waypoints": [
-      {
-        "label": "Point 1",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 0.0,
-          "elbow": 168.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 2",
-        "angles": {
-          "base": 102.0,
-          "shoulder": 0.0,
-          "elbow": 90.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 3",
-        "angles": {
-          "base": 180.0,
-          "shoulder": 0.0,
-          "elbow": 175.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 4",
-        "angles": {
-          "base": 0.0,
-          "shoulder": 0.0,
-          "elbow": 177.0,
-          "wrist": 90.0,
-          "gripper": 90.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 5",
-        "angles": {
-          "base": 84.0,
-          "shoulder": 88.0,
-          "elbow": 178.0,
-          "wrist": 88.0,
-          "gripper": 71.0,
-          "auxiliary": 29.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "3db07684": {
-    "name": "square",
-    "created": "2026-04-13T01:23:58.910163",
-    "waypoints": [
-      {
-        "label": "Point 1",
-        "angles": {
-          "base": 92.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 52.0,
-          "gripper": 106.0,
-          "auxiliary": 92.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 2",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 3.0,
-          "elbow": 178.0,
-          "wrist": 88.0,
-          "gripper": 90.0,
-          "auxiliary": 67.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 3",
-        "angles": {
-          "base": 88.0,
-          "shoulder": 3.0,
-          "elbow": 89.0,
-          "wrist": 88.0,
-          "gripper": 90.0,
-          "auxiliary": 93.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      },
-      {
-        "label": "Point 4",
-        "angles": {
-          "base": 88.0,
-          "shoulder": 3.0,
-          "elbow": 89.0,
-          "wrist": 88.0,
-          "gripper": 90.0,
-          "auxiliary": 93.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "26cf86fb": {
+  "19fc90ff": {
     "name": "Draw Square",
-    "created": "2026-04-14T02:37:54.682729",
+    "created": "2026-05-07T04:38:35.675648",
     "waypoints": [
       {
         "label": "Approach",
@@ -150,8 +10,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 500,
         "transition_ms": 1500
@@ -163,8 +23,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 200,
         "transition_ms": 600
@@ -176,8 +36,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -189,8 +49,8 @@
           "shoulder": 25.0,
           "elbow": 140.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -202,8 +62,8 @@
           "shoulder": 25.0,
           "elbow": 140.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -215,8 +75,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -228,8 +88,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 600
@@ -238,527 +98,9 @@
     "loop": false,
     "speed": 1.0
   },
-  "66b2e093": {
-    "name": "Pick & Place",
-    "created": "2026-04-14T02:38:14.653292",
-    "waypoints": [
-      {
-        "label": "Home",
-        "angles": {
-          "base": 90,
-          "shoulder": 90,
-          "elbow": 90,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Above Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Lower to Cube",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Grip Cube",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 800,
-        "transition_ms": 600
-      },
-      {
-        "label": "Lift Cube",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 400,
-        "transition_ms": 800
-      },
-      {
-        "label": "Move to Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Lower to Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Release Cube",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 600,
-        "transition_ms": 600
-      },
-      {
-        "label": "Lift Away",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Return Home",
-        "angles": {
-          "base": 90,
-          "shoulder": 90,
-          "elbow": 90,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Point 11",
-        "angles": {
-          "base": 137.0,
-          "shoulder": 4.0,
-          "elbow": 268.0,
-          "wrist": 135.0,
-          "gripper": 80.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 1000,
-        "transition_ms": 800
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "b4b7d866": {
-    "name": "Pick & Place",
-    "created": "2026-04-14T02:38:17.705075",
-    "waypoints": [
-      {
-        "label": "Home",
-        "angles": {
-          "base": 90,
-          "shoulder": 90,
-          "elbow": 90,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Above Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Lower to Cube",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Grip Cube",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 800,
-        "transition_ms": 600
-      },
-      {
-        "label": "Lift Cube",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 400,
-        "transition_ms": 800
-      },
-      {
-        "label": "Move to Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Lower to Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Release Cube",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 600,
-        "transition_ms": 600
-      },
-      {
-        "label": "Lift Away",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Return Home",
-        "angles": {
-          "base": 90,
-          "shoulder": 90,
-          "elbow": 90,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "8f7f8c86": {
-    "name": "Stack 2 Cubes",
-    "created": "2026-04-14T02:38:36.445346",
-    "waypoints": [
-      {
-        "label": "L1: Above Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1000
-      },
-      {
-        "label": "L1: Lower Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L1: Grip",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 700,
-        "transition_ms": 500
-      },
-      {
-        "label": "L1: Lift",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L1: To Stack",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "L1: Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L1: Release",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 600,
-        "transition_ms": 500
-      },
-      {
-        "label": "L1: Clear",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: Above Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1000
-      },
-      {
-        "label": "L2: Lower Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: Grip",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 700,
-        "transition_ms": 500
-      },
-      {
-        "label": "L2: Lift",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: To Stack",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 52.5,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "L2: Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 15.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: Release",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 15.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 600,
-        "transition_ms": 500
-      },
-      {
-        "label": "L2: Clear",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 52.5,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Return Home",
-        "angles": {
-          "base": 90,
-          "shoulder": 90,
-          "elbow": 90,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "0c7ff414": {
+  "ac1362ef": {
     "name": "Draw Triangle",
-    "created": "2026-04-14T02:39:01.808412",
+    "created": "2026-05-07T04:38:37.379218",
     "waypoints": [
       {
         "label": "Approach",
@@ -767,8 +109,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 500,
         "transition_ms": 1500
@@ -780,8 +122,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 200,
         "transition_ms": 600
@@ -793,8 +135,8 @@
           "shoulder": 25.0,
           "elbow": 136.66666666666666,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -806,8 +148,8 @@
           "shoulder": 25.0,
           "elbow": 136.66666666666666,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -819,8 +161,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -832,8 +174,8 @@
           "shoulder": 25.0,
           "elbow": 120.0,
           "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 600
@@ -842,9 +184,9 @@
     "loop": false,
     "speed": 1.0
   },
-  "2681c629": {
+  "41a8e766": {
     "name": "Draw Rectangle",
-    "created": "2026-04-14T02:39:28.392437",
+    "created": "2026-05-07T04:38:40.823589",
     "waypoints": [
       {
         "label": "Approach",
@@ -853,8 +195,8 @@
           "shoulder": 25.0,
           "elbow": 122.0,
           "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 500,
         "transition_ms": 1500
@@ -866,8 +208,8 @@
           "shoulder": 25.0,
           "elbow": 122.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 200,
         "transition_ms": 600
@@ -879,8 +221,8 @@
           "shoulder": 25.0,
           "elbow": 122.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -892,8 +234,8 @@
           "shoulder": 25.0,
           "elbow": 138.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -905,8 +247,8 @@
           "shoulder": 25.0,
           "elbow": 138.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -918,8 +260,8 @@
           "shoulder": 25.0,
           "elbow": 122.0,
           "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -931,8 +273,8 @@
           "shoulder": 25.0,
           "elbow": 122.0,
           "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 50.0
         },
         "delay_ms": 300,
         "transition_ms": 600
@@ -941,392 +283,9 @@
     "loop": false,
     "speed": 1.0
   },
-  "7889fc0a": {
-    "name": "Draw Square",
-    "created": "2026-04-14T04:43:38.179360",
-    "waypoints": [
-      {
-        "label": "Approach",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Pen Down",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 200,
-        "transition_ms": 600
-      },
-      {
-        "label": "Corner 2",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 3",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 140.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 4",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 140.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Close Shape",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Pen Up",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 600
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "30cf4023": {
-    "name": "Draw Square",
-    "created": "2026-04-14T04:43:41.917642",
-    "waypoints": [
-      {
-        "label": "Approach",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Pen Down",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 200,
-        "transition_ms": 600
-      },
-      {
-        "label": "Corner 2",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 3",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 140.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 4",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 140.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Close Shape",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Pen Up",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 600
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "6eb4327a": {
-    "name": "Draw Square",
-    "created": "2026-04-14T04:43:42.584767",
-    "waypoints": [
-      {
-        "label": "Approach",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Pen Down",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 200,
-        "transition_ms": 600
-      },
-      {
-        "label": "Corner 2",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 3",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 140.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 4",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 140.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Close Shape",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Pen Up",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 600
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "988d93df": {
-    "name": "Draw Triangle",
-    "created": "2026-04-14T04:44:09.060688",
-    "waypoints": [
-      {
-        "label": "Approach",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      },
-      {
-        "label": "Pen Down",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 200,
-        "transition_ms": 600
-      },
-      {
-        "label": "Corner 2",
-        "angles": {
-          "base": 100.0,
-          "shoulder": 25.0,
-          "elbow": 136.66666666666666,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Corner 3",
-        "angles": {
-          "base": 80.0,
-          "shoulder": 25.0,
-          "elbow": 136.66666666666666,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Close Shape",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 40.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "Pen Up",
-        "angles": {
-          "base": 90.0,
-          "shoulder": 25.0,
-          "elbow": 120.0,
-          "wrist": 70.0,
-          "gripper": 50.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 600
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "64b39264": {
+  "2f0f11e3": {
     "name": "Pick & Place",
-    "created": "2026-04-14T04:44:26.342877",
+    "created": "2026-05-07T04:38:41.960626",
     "waypoints": [
       {
         "label": "Home",
@@ -1335,8 +294,8 @@
           "shoulder": 90,
           "elbow": 90,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 500,
         "transition_ms": 1500
@@ -1348,8 +307,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -1361,8 +320,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1374,8 +333,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 800,
         "transition_ms": 600
@@ -1387,8 +346,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 400,
         "transition_ms": 800
@@ -1400,8 +359,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -1413,8 +372,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1426,8 +385,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 600,
         "transition_ms": 600
@@ -1439,8 +398,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1452,8 +411,8 @@
           "shoulder": 90,
           "elbow": 90,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 500,
         "transition_ms": 1500
@@ -1462,9 +421,9 @@
     "loop": false,
     "speed": 1.0
   },
-  "a4aa8624": {
+  "0c396ed3": {
     "name": "Stack 2 Cubes",
-    "created": "2026-04-14T04:44:50.147757",
+    "created": "2026-05-07T04:38:43.440896",
     "waypoints": [
       {
         "label": "L1: Above Pick",
@@ -1473,8 +432,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 1000
@@ -1486,8 +445,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1499,8 +458,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 700,
         "transition_ms": 500
@@ -1512,8 +471,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1525,8 +484,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -1538,8 +497,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1551,8 +510,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 600,
         "transition_ms": 500
@@ -1564,8 +523,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1577,8 +536,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 1000
@@ -1590,8 +549,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1603,8 +562,8 @@
           "shoulder": 20.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 700,
         "transition_ms": 500
@@ -1616,8 +575,8 @@
           "shoulder": 55.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1629,8 +588,8 @@
           "shoulder": 52.5,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 1200
@@ -1642,8 +601,8 @@
           "shoulder": 15.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 15.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1655,8 +614,8 @@
           "shoulder": 15.0,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 600,
         "transition_ms": 500
@@ -1668,8 +627,8 @@
           "shoulder": 52.5,
           "elbow": 155.0,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 300,
         "transition_ms": 800
@@ -1681,237 +640,8 @@
           "shoulder": 90,
           "elbow": 90,
           "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 500,
-        "transition_ms": 1500
-      }
-    ],
-    "loop": false,
-    "speed": 1.0
-  },
-  "45d84877": {
-    "name": "Stack 2 Cubes",
-    "created": "2026-04-14T04:44:51.219600",
-    "waypoints": [
-      {
-        "label": "L1: Above Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1000
-      },
-      {
-        "label": "L1: Lower Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L1: Grip",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 700,
-        "transition_ms": 500
-      },
-      {
-        "label": "L1: Lift",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L1: To Stack",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "L1: Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L1: Release",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 600,
-        "transition_ms": 500
-      },
-      {
-        "label": "L1: Clear",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: Above Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1000
-      },
-      {
-        "label": "L2: Lower Pick",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: Grip",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 20.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 700,
-        "transition_ms": 500
-      },
-      {
-        "label": "L2: Lift",
-        "angles": {
-          "base": 60.0,
-          "shoulder": 55.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: To Stack",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 52.5,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 1200
-      },
-      {
-        "label": "L2: Place",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 15.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 45.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "L2: Release",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 15.0,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 600,
-        "transition_ms": 500
-      },
-      {
-        "label": "L2: Clear",
-        "angles": {
-          "base": 120.0,
-          "shoulder": 52.5,
-          "elbow": 155.0,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
-        },
-        "delay_ms": 300,
-        "transition_ms": 800
-      },
-      {
-        "label": "Return Home",
-        "angles": {
-          "base": 90,
-          "shoulder": 90,
-          "elbow": 90,
-          "wrist": 90.0,
-          "gripper": 120.0,
-          "auxiliary": 90.0
+          "gripper": 90.0,
+          "auxiliary": 80.0
         },
         "delay_ms": 500,
         "transition_ms": 1500

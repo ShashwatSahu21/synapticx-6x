@@ -117,6 +117,17 @@ export default function TeachReplayPage() {
             setError("Stop failed");
         }
     };
+    
+    const handleDeleteWaypoint = async (seqId, wpIdx) => {
+        try {
+            const res = await api.deleteWaypoint(seqId, wpIdx);
+            if (res.status === "ok") {
+                await loadActiveSequence(seqId);
+            }
+        } catch (err) {
+            setError("Failed to remove waypoint");
+        }
+    };
 
     const handleDeleteSequence = async (id, name) => {
         if (!window.confirm(`Are you sure you want to delete the mission: "${name}"?`)) return;
@@ -343,7 +354,7 @@ export default function TeachReplayPage() {
                                     activeSeq.waypoints.map((wp, idx) => (
                                         <div 
                                             key={idx}
-                                            className={`p-4 rounded-xl border transition-all animate-page-in ${
+                                            className={`p-4 rounded-xl border transition-all animate-page-in group/wp ${
                                                 playback.active && playback.current_waypoint_idx === idx 
                                                 ? "border-neural-cyan bg-neural-cyan/10 ring-1 ring-neural-cyan/40" 
                                                 : "border-white/5 bg-white/5 hover:border-white/20"
@@ -362,6 +373,14 @@ export default function TeachReplayPage() {
                                                 </div>
                                                 {playback.active && playback.current_waypoint_idx === idx && (
                                                     <span className="text-[10px] text-neural-cyan font-bold animate-pulse">ACTIVE</span>
+                                                )}
+                                                {!playback.active && (
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); handleDeleteWaypoint(activeSeqId, idx); }}
+                                                        className="opacity-0 group-hover/wp:opacity-100 p-1 -m-1 text-red-500/40 hover:text-red-500 transition-all text-[14px]"
+                                                    >
+                                                        ✕
+                                                    </button>
                                                 )}
                                             </div>
                                             <div className="grid grid-cols-3 gap-2 px-1">
